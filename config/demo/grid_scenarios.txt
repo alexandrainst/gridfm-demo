@@ -1,0 +1,23 @@
+Scenario 1:
+
+A:[-100,0], 10000 GWh of delivered power / year
+B:[100,0], 2000 GWh of delivered power / year
+C:[0,-100], slack bus
+G:[0,100], 800 MW
+P:[0,0], 304 MW solar electricity generation, 54 MW electrolysis consumption
+
+
+Scenario 2:
+- P moved to [100,100]
+
+Scenario 3:
+- P moved to [250,0]
+
+Scenario 4:
+- P moved to [5,0]
+
+Scenario 5:
+- P moved to [0,-500]
+
+Scenario 6:
+- P moved to [-50,-3000]

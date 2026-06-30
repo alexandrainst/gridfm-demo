@@ -1,0 +1,40 @@
+# gridfm-datakit config: generate a default training dataset from an IEEE case.
+# Run:  gridfm_datakit config/datakit_case14.yaml
+network:
+  name: case14_ieee          # PGLib name (downloaded if absent): case14_ieee, case118_ieee, ...
+  source: pglib              # pglib | pandapower | file
+  network_dir: none
+
+load:                        # demand scenarios = perturbations of an aggregate load profile
+  generator: agg_load_profile
+  agg_profile: default       # bundled load_profiles/default.csv
+  scenarios: 2000            # number of load snapshots (bump to 1000s for real training)
+  sigma: 0.2                 # per-bus noise around the aggregate scaling
+  change_reactive_power: true
+  global_range: 0.4
+  max_scaling_factor: 4.0
+  step_size: 0.025
+  start_scaling_factor: 0.8
+
+topology_perturbation:       # keep the topology fixed for a first dataset
+  type: "random"
+  k: 1
+  n_topology_variants: 20
+  elements: [line, gen]
+
+generation_perturbation:
+  type: "cost_permutation"
+  sigma: 1.0
+
+admittance_perturbation:
+  type: "random_perturbation"
+  sigma: 0.2
+
+settings:
+  num_processes: 1
+  data_dir: /home/bourdeet/projects/gridFM/repo/gridfm_demo/data/gridfm_datasets
+  large_chunk_size: 100
+  no_stats: false
+  overwrite: true
+  mode: pf                   # pf | contingency
+  seed: null

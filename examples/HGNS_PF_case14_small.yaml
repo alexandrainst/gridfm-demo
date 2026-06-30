@@ -1,0 +1,58 @@
+# Training config compatible with the INSTALLED graphkit 0.0.6 (homogeneous
+# GNN_TransformerConv; the downloaded HGNS_PF_datakit_case14.yaml targets a newer
+# hetero model not in this version). Small run on our 20-scenario case14 dataset.
+#
+# Dims derived from the installed source:
+#   node x = [Pd,Qd,Pg,Qg,Vm,Va,PQ,PV,REF] -> input_dim 9
+#   y = x[:, :mask_dim]                      -> output_dim 6, mask_dim 6
+#   edge_attr = [G,B]                        -> edge_dim 2
+#
+# Run:
+#   MLFLOW_ALLOW_FILE_STORE=true gridfm_graphkit train \
+#       --config examples/HGNS_PF_case14_small.yaml --data_path data/gridfm_datasets
+callbacks:
+  patience: 100
+  tol: 0
+seed: 0
+task:
+  task_name: PowerFlow
+data:
+  baseMVA: 100
+  mask_value: 0.0
+  mask_dim: 6
+  mask_type: pf            # power-flow masking (none|rnd|pf|opf)
+  normalization: baseMVAnorm
+  networks:
+  - case14_ieee
+  scenarios:
+  - 20
+  test_ratio: 0.1
+  val_ratio: 0.1
+  workers: 0
+  split_by_load_scenario_idx: true
+model:
+  type: GNN_TransformerConv
+  input_dim: 9
+  output_dim: 6
+  hidden_size: 48
+  edge_dim: 2
+  num_layers: 6
+  attention_head: 4
+  pe_dim: 16
+optimizer:
+  beta1: 0.9
+  beta2: 0.999
+  learning_rate: 0.0005
+  lr_decay: 0.7
+  lr_patience: 5
+training:
+  batch_size: 8
+  epochs: 3
+  losses:
+  - MaskedMSE
+  loss_weights:
+  - 1.0
+  accelerator: cpu
+  devices: 1
+  strategy: auto
+verbose: true

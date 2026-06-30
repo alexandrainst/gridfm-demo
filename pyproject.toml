@@ -10,7 +10,11 @@ maintainers = [
   {name = "Étienne Bourbeau", email = "27770178+bourdeet@users.noreply.github.com"},
 ]
 requires-python = ">=3.12,<4.0"
-dependencies = []
+dependencies = [
+    "gridfm-datakit==1.0.4",
+    "gridfm-graphkit==0.0.6",
+    "matplotlib>=3.11.0",
+]
 
 [project.urls]
 Repository = "https://github.com/alexandrainst/gridfm_demo"
@@ -118,6 +122,9 @@ testpaths = [
   "tests",
   "src/gridfm_demo",
 ]
+
+[tool.uv]
+environments = ["sys_platform == 'linux'"]
 
 [build-system]
 requires = ["hatchling"]
