@@ -11,8 +11,9 @@ maintainers = [
 ]
 requires-python = ">=3.12,<4.0"
 dependencies = [
-    "gridfm-datakit==1.0.4",
-    "gridfm-graphkit==0.0.6",
+    "gridfm-datakit",
+    "gridfm-graphkit",
+    "appfl",
     "matplotlib>=3.11.0",
 ]
 
@@ -29,7 +30,7 @@ dev = [
   "pytest-cov>=6.2.1",
   "pre-commit>=4.3.0",
   "readme-coverage-badger>=1.0.1",
-  "click>=8.2.1",
+  "click",
   "ruff>=0.15.1",
   "ty>=0.0.29",
   "nbstripout>=0.9.0",
@@ -125,6 +126,13 @@ testpaths = [
 
 [tool.uv]
 environments = ["sys_platform == 'linux'"]
+
+[tool.uv.sources]
+# We pin the gridfm and APPFL repos on the commit corresponding to the latest release.
+# We also point to Alexandra's own fork of the project, in case we need adapt these projects.
+gridfm-datakit = { git = "https://github.com/alexandrainst/gridfm-datakit" , branch="a3fc228" }
+gridfm-graphkit = { git = "https://github.com/alexandrainst/gridfm-graphkit", branch="b3d663b" }
+appfl = { git = "https://github.com/alexandrainst/APPFL.git", branch="ea523e3" }
 
 [build-system]
 requires = ["hatchling"]

@@ -59,5 +59,3 @@ The project is structured intot he following subcomponents:
 * `model_training` handles the centralized training process of gridFM and is based on [gridFM-graphkit](https://github.com/gridfm/gridfm-graphkit)
 * `federated_learning` is an alternative way of training gridFM, using a federated learning framework called [APPFL](https://github.com/APPFL/APPFL). It adapts the graphkit training tools for use within the federated learning framework.
 * `use_cases` includes various analyses of the trained model performance, showing how the model's accuracy and latency compares with standard power flow solvers. It also includes an example use of the final model within an optimisation task inspired by real challenges faced by TSO's.
-
-
