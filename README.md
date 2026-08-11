@@ -10,9 +10,11 @@
 />
 </a>
 
-# Gridfm Demo
+# GridFM Demo
 
-Demo case bencharking gridFM-derived power flow solutions with state-of-the-art deterministic solutions from pandapower.
+Proof-of-concept showcasing the training process of a foundation model for the electric grid (GridFM), and an example use case for the trained model within Power-to-X positioning optimisation.
+
+The repo builds on top of several existing open source initiatives aimed at building general-purpose AI models for the grid, adapting them to datasets, training scenarios and use cases relevant for the danish energy sector. To avoid issues related to data privacy, this PoC generates its own synthetic data from purely fictional grid topologies.
 
 ______________________________________________________________________
 [![Code Coverage](https://img.shields.io/badge/Coverage-0%25-red.svg)](https://github.com/alexandrainst/gridfm_demo/tree/main/tests)
@@ -49,79 +51,13 @@ To show all installed packages, run:
 uv pip list
 ```
 
-## All Built-in Commands
+## Repository Content
 
-The project includes the following convenience commands:
+The project is structured intot he following subcomponents:
 
-- `make install`: Install the project and its dependencies in a virtual environment.
-- `make install-pre-commit`: Install pre-commit hooks for linting, formatting and type
-  checking.
-- `make check`: Lint and format the code using `ruff`, and type check using `pyrefly`.
-- `make test`: Run tests using `pytest` and update the coverage badge in the readme.
-- `make docker`: Build a Docker image and run the Docker container.
-- `make tree`: Show the project structure as a tree.
+* `data_generation` handles the creation of synthetic grid data for training gridFM and test its performance. It relies on [gridfm-datakit](https://github.com/gridfm/gridfm-datakit) for generating the graph objects. 
+* `model_training` handles the centralized training process of gridFM and is based on [gridFM-graphkit](https://github.com/gridfm/gridfm-graphkit)
+* `federated_learning` is an alternative way of training gridFM, using a federated learning framework called [APPFL](https://github.com/APPFL/APPFL). It adapts the graphkit training tools for use within the federated learning framework.
+* `use_cases` includes various analyses of the trained model performance, showing how the model's accuracy and latency compares with standard power flow solvers. It also includes an example use of the final model within an optimisation task inspired by real challenges faced by TSO's.
 
-## A Word on Modules and Scripts
 
-In the `src` directory there are two subdirectories, `gridfm_demo`
-and `scripts`. This is a brief explanation of the differences between the two.
-
-### Modules
-
-All Python files in the `gridfm_demo` directory are _modules_
-internal to the project package. Examples here could be a general data loading script,
-a definition of a model, or a training function. Think of modules as all the building
-blocks of a project.
-
-When a module is importing functions/classes from other modules we use the _relative
-import_ notation - here's an example:
-
-```python
-from .other_module import some_function
-```
-
-### Scripts
-
-Python files in the `scripts` folder are scripts, which are short code snippets that
-are _external_ to the project package, and which is meant to actually run the code. As
-such, _only_ scripts will be called from the terminal. An analogy here is that the
-internal `numpy` code are all modules, but the Python code you write where you import
-some `numpy` functions and actually run them, that a script.
-
-When importing module functions/classes when you're in a script, you do it like you
-would normally import from any other package:
-
-```python
-from gridfm_demo import some_function
-```
-
-Note that this is also how we import functions/classes in tests, since each test Python
-file is also a Python script, rather than a module.
-
-## Features
-
-### Docker Setup
-
-A Dockerfile is included in the new repositories, which by default runs
-`src/scripts/main.py`. You can build the Docker image and run the Docker container by
-running `make docker`.
-
-### Automatic Test Coverage Calculation
-
-Run `make test` to test your code, which also updates the "coverage badge" in the
-README, showing you how much of your code base that is currently being tested.
-
-### Continuous Integration
-
-Github CI pipelines are included in the repo, running all the tests in the `tests`
-directory, as well as building online documentation, if Github Pages has been enabled
-for the repository (can be enabled on Github in the repository settings).
-
-### Code Spaces
-
-Code Spaces is a new feature on Github, that allows you to develop on a project
-completely in the cloud, without having to do any local setup at all. This repo comes
-included with a configuration file for running code spaces on Github. When hosted on
-`alexandrainst/gridfm_demo` then simply press the `<> Code` button
-and add a code space to get started, which will open a VSCode window directly in your
-browser.
