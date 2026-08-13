@@ -10,7 +10,7 @@
 />
 </a>
 
-# GridFM Demo
+# GridFM Demo 
 
 Proof-of-concept showcasing the training process of a foundation model for the electric grid (GridFM), and an example use case for the trained model within Power-to-X positioning optimisation.
 
