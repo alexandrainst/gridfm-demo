@@ -29,7 +29,7 @@ import numpy as np
 
 warnings.filterwarnings("ignore")
 import pandapower as pp
-from pandapower.converter import to_mpc
+from pandapower.converter.matpower import to_mpc
 
 # ----------------------------------------------------------------------------
 # CONFIG  (every assumed value lives here -- override freely)

@@ -25,7 +25,7 @@ from matplotlib.lines import Line2D
 
 warnings.filterwarnings("ignore")
 import pandapower as pp
-from pandapower.converter import to_mpc
+from pandapower.converter.matpower import to_mpc
 
 from trex_contour import extract        # traces the real image silhouette + eye
 
