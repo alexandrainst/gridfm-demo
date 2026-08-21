@@ -1,6 +1,6 @@
 # This ensures that we can call `make <target>` even if `<target>` exists as a file or
 # directory.
-.PHONY: help
+.PHONY: help format-markdown
 
 # Exports all variables defined in the makefile available to scripts
 .EXPORT_ALL_VARIABLES:
@@ -101,3 +101,8 @@ tree:  ## Print directory tree
 
 check:  ## Lint, format, and type-check the code
 	@git add . && uv run pre-commit run --all-files; status=$$?; git reset >/dev/null; exit $$status
+
+format-markdown:
+	## markdownlint-cli2 does not support wrapping lines at 88 characters, so we use Prettier to wrap lines at 88 characters and then use markdownlint-cli2 to fix any remaining issues.
+	prettier --write --prose-wrap=always --print-width=88 *.md docs/**/*.md
+	markdownlint-cli2 --fix *.md docs/**/*.md
