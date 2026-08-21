@@ -32,7 +32,7 @@ admittance_perturbation:
 
 settings:
   num_processes: 1
-  data_dir: /home/bourdeet/projects/gridFM/repo/gridfm_demo/data/gridfm_datasets
+  data_dir: ./data/gridfm_datasets
   large_chunk_size: 100
   no_stats: false
   overwrite: true
