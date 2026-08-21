@@ -1,6 +1,6 @@
 # This ensures that we can call `make <target>` even if `<target>` exists as a file or
 # directory.
-.PHONY: help
+.PHONY: help format-markdown
 
 # Exports all variables defined in the makefile available to scripts
 .EXPORT_ALL_VARIABLES:
