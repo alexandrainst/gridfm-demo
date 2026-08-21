@@ -32,6 +32,17 @@ Developer:
 
 ## Setup
 
+### Nix development shell
+
+A `flake.nix` is provided for developers using [Nix](https://nixos.org/). It supplies
+all the programs needed to work on the project without any manual installation:
+
+```bash
+nix develop
+```
+
+Once inside the shell, continue with the installation steps below.
+
 ### Installation
 
 1. Run `make install`, which sets up a virtual environment and all Python dependencies
