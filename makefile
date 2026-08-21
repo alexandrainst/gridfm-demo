@@ -104,5 +104,15 @@ check:  ## Lint, format, and type-check the code
 
 format-markdown:
 	## markdownlint-cli2 does not support wrapping lines at 88 characters, so we use Prettier to wrap lines at 88 characters and then use markdownlint-cli2 to fix any remaining issues.
-	prettier --write --prose-wrap=always --print-width=88 *.md docs/**/*.md
-	markdownlint-cli2 --fix *.md docs/**/*.md
+	prettier --write --prose-wrap=always --print-width=88 *.md docs/**/*.md src/**/*.md
+	markdownlint-cli2 --fix *.md docs/**/*.md src/**/*.md
+
+generate-data:
+	## Generate power grid data from a config file
+	## Usage: `make generate-data config=<path-to-config-file>`
+	## Example: `make generate-data config=src/data_generation/config/default.yaml`
+	@if [ -z "$(config)" ]; then \
+		echo "Error: specify a config file, e.g. make generate-data config=src/data_generation/config/default.yaml"; \
+		exit 1; \
+	fi
+	@uv run gridfm_datakit generate $(config)
