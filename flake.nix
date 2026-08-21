@@ -15,6 +15,11 @@
           pkgs.git
           pkgs.tree
         ];
+        shellHook = ''
+          if [ -f .venv/bin/activate ]; then
+            source .venv/bin/activate
+          fi
+        '';
       };
     }) inputs.nixpkgs.legacyPackages;
   };
