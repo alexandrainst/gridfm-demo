@@ -84,16 +84,19 @@ This requires `prettier` and `markdownlint-cli2`.
 
 The project is structured intot he following subcomponents:
 
-- `data_generation` handles the creation of synthetic grid data for training gridFM and
-  test its performance. It relies on
+- [`src/data_generation`](src/data_generation/) handles the creation of synthetic grid
+  data for training gridFM and test its performance. It relies on
   [gridfm-datakit](https://github.com/gridfm/gridfm-datakit) for generating the graph
   objects.
-- `model_training` handles the centralized training process of gridFM and is based on
-  [gridFM-graphkit](https://github.com/gridfm/gridfm-graphkit)
-- `federated_learning` is an alternative way of training gridFM, using a federated
-  learning framework called [APPFL](https://github.com/APPFL/APPFL). It adapts the
-  graphkit training tools for use within the federated learning framework.
-- `use_cases` includes various analyses of the trained model performance, showing how
-  the model's accuracy and latency compares with standard power flow solvers. It also
-  includes an example use of the final model within an optimisation task inspired by
-  real challenges faced by TSO's.
+
+> TODO:
+>
+> - `model_training` handles the centralized training process of gridFM and is based on
+>   [gridFM-graphkit](https://github.com/gridfm/gridfm-graphkit)
+> - `federated_learning` is an alternative way of training gridFM, using a federated
+>   learning framework called [APPFL](https://github.com/APPFL/APPFL). It adapts the
+>   graphkit training tools for use within the federated learning framework.
+> - `use_cases` includes various analyses of the trained model performance, showing how
+>   the model's accuracy and latency compares with standard power flow solvers. It also
+>   includes an example use of the final model within an optimisation task inspired by
+>   real challenges faced by TSO's.
