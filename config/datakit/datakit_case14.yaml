@@ -38,3 +38,8 @@ settings:
   overwrite: true
   mode: pf                   # pf | contingency
   seed: null
+  include_dc_res: true
+  enable_solver_logs: false
+  pf_fast: true
+  dcpf_fast: true
+  max_iter: 200
