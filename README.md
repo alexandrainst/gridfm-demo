@@ -69,6 +69,17 @@ To show all installed packages, run:
 uv pip list
 ```
 
+### Formatting Markdown
+
+To format all Markdown files (wraps prose at 88 characters and fixes linting issues),
+run:
+
+```bash
+make format-markdown
+```
+
+This requires `prettier` and `markdownlint-cli2`.
+
 ## Repository Content
 
 The project is structured intot he following subcomponents:
