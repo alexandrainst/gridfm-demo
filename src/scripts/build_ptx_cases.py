@@ -35,35 +35,35 @@ from pandapower.converter.matpower import to_mpc
 # CONFIG  (every assumed value lives here -- override freely)
 # ----------------------------------------------------------------------------
 BASE_MVA = 100.0
-V_BASE_KV = 400.0                       # transmission level (loads are GW-scale)
+V_BASE_KV = 400.0  # transmission level (loads are GW-scale)
 
 # 400 kV single-circuit overhead line, per km
-R_PER_KM = 0.025                        # ohm/km
-X_PER_KM = 0.30                         # ohm/km
-C_PER_KM_NF = 12.0                      # nF/km
+R_PER_KM = 0.025  # ohm/km
+X_PER_KM = 0.30  # ohm/km
+C_PER_KM_NF = 12.0  # nF/km
 
-RATE_A, RATE_B, RATE_C = 1400.0, 1600.0, 1800.0          # MVA thermal ratings
-MAX_I_KA = RATE_A / (math.sqrt(3) * V_BASE_KV)           # current rating [kA]
+RATE_A, RATE_B, RATE_C = 1400.0, 1600.0, 1800.0  # MVA thermal ratings
+MAX_I_KA = RATE_A / (math.sqrt(3) * V_BASE_KV)  # current rating [kA]
 
 HOURS_PER_YEAR = 8760.0
-LOAD_PF = 0.95                          # lagging power factor for DSO loads
+LOAD_PF = 0.95  # lagging power factor for DSO loads
 Q_OVER_P = math.tan(math.acos(LOAD_PF))
 
-A_GWH, B_GWH = 10000.0, 2000.0          # annual delivered energy
+A_GWH, B_GWH = 10000.0, 2000.0  # annual delivered energy
 A_PD = A_GWH * 1000.0 / HOURS_PER_YEAR  # MW (annual-average power)
 B_PD = B_GWH * 1000.0 / HOURS_PER_YEAR
 
-P_SOLAR_MW, P_ELYS_MW = 304.0, 54.0     # PtX site components
-P_NET_INJ = P_SOLAR_MW - P_ELYS_MW      # +250 MW injected (modelled as neg load)
+P_SOLAR_MW, P_ELYS_MW = 304.0, 54.0  # PtX site components
+P_NET_INJ = P_SOLAR_MW - P_ELYS_MW  # +250 MW injected (modelled as neg load)
 
-G_PG, G_VG = 800.0, 1.02                # gas plant (PV)
+G_PG, G_VG = 800.0, 1.02  # gas plant (PV)
 G_QMAX, G_QMIN = 400.0, -300.0
 G_PMAX, G_PMIN = 900.0, 200.0
 
-C_VG = 1.00                             # slack / external grid voltage
-WIDE = 9999.0                           # "unlimited" for slack P/Q
+C_VG = 1.00  # slack / external grid voltage
+WIDE = 9999.0  # "unlimited" for slack P/Q
 
-VMAX, VMIN = 1.10, 0.90                 # voltage band
+VMAX, VMIN = 1.10, 0.90  # voltage band
 
 FIXED_COORDS = {
     "A": (-100.0, 0.0),
@@ -77,11 +77,17 @@ SCENARIOS = {
     "s3": (250.0, 0.0),
     "s4": (5.0, 0.0),
     "s5": (0.0, -500.0),
-    "s6": (0.0, -900.0),     # longest spur P-G = 1000 km (Hydro-Quebec scale)
+    "s6": (0.0, -900.0),  # longest spur P-G = 1000 km (Hydro-Quebec scale)
 }
 LINES = [
-    ("A", "G"), ("G", "B"), ("B", "C"), ("C", "A"),     # backbone ring
-    ("P", "A"), ("P", "B"), ("P", "C"), ("P", "G"),     # P spurs
+    ("A", "G"),
+    ("G", "B"),
+    ("B", "C"),
+    ("C", "A"),  # backbone ring
+    ("P", "A"),
+    ("P", "B"),
+    ("P", "C"),
+    ("P", "G"),  # P spurs
 ]
 
 
@@ -91,7 +97,7 @@ LINES = [
 COMP_FRACTION = 1.0
 COMP_SCENARIOS = {"s6"}
 
-_B_PER_KM = 2 * math.pi * 50.0 * C_PER_KM_NF * 1e-9   # S/km
+_B_PER_KM = 2 * math.pi * 50.0 * C_PER_KM_NF * 1e-9  # S/km
 
 
 def dist(p, q):
@@ -115,17 +121,35 @@ def build_net(p_coord, comp_fraction=0.0):
 
     bus = {}
     for nm in ["A", "B", "C", "G", "P"]:
-        bus[nm] = pp.create_bus(net, vn_kv=V_BASE_KV, name=nm,
-                                 max_vm_pu=VMAX, min_vm_pu=VMIN)
+        bus[nm] = pp.create_bus(
+            net, vn_kv=V_BASE_KV, name=nm, max_vm_pu=VMAX, min_vm_pu=VMIN
+        )
 
     # Slack: external grid tie C
-    pp.create_ext_grid(net, bus["C"], vm_pu=C_VG, va_degree=0.0, name="C",
-                       max_p_mw=WIDE, min_p_mw=-WIDE,
-                       max_q_mvar=WIDE, min_q_mvar=-WIDE)
+    pp.create_ext_grid(
+        net,
+        bus["C"],
+        vm_pu=C_VG,
+        va_degree=0.0,
+        name="C",
+        max_p_mw=WIDE,
+        min_p_mw=-WIDE,
+        max_q_mvar=WIDE,
+        min_q_mvar=-WIDE,
+    )
     # PV generator: gas plant G
-    pp.create_gen(net, bus["G"], p_mw=G_PG, vm_pu=G_VG, name="G",
-                  max_q_mvar=G_QMAX, min_q_mvar=G_QMIN,
-                  max_p_mw=G_PMAX, min_p_mw=G_PMIN, slack=False)
+    pp.create_gen(
+        net,
+        bus["G"],
+        p_mw=G_PG,
+        vm_pu=G_VG,
+        name="G",
+        max_q_mvar=G_QMAX,
+        min_q_mvar=G_QMIN,
+        max_p_mw=G_PMAX,
+        min_p_mw=G_PMIN,
+        slack=False,
+    )
     # PQ loads: DSO consumers A, B
     pp.create_load(net, bus["A"], p_mw=A_PD, q_mvar=A_PD * Q_OVER_P, name="A")
     pp.create_load(net, bus["B"], p_mw=B_PD, q_mvar=B_PD * Q_OVER_P, name="B")
@@ -137,16 +161,22 @@ def build_net(p_coord, comp_fraction=0.0):
         L = dist(coords[f], coords[t])
         lengths[(f, t)] = L
         pp.create_line_from_parameters(
-            net, bus[f], bus[t], length_km=L,
-            r_ohm_per_km=R_PER_KM, x_ohm_per_km=X_PER_KM,
-            c_nf_per_km=C_PER_KM_NF, g_us_per_km=0.0,
-            max_i_ka=MAX_I_KA, name="%s-%s" % (f, t))
+            net,
+            bus[f],
+            bus[t],
+            length_km=L,
+            r_ohm_per_km=R_PER_KM,
+            x_ohm_per_km=X_PER_KM,
+            c_nf_per_km=C_PER_KM_NF,
+            g_us_per_km=0.0,
+            max_i_ka=MAX_I_KA,
+            name="%s-%s" % (f, t),
+        )
 
     # Shunt reactor at P: q_mvar > 0 absorbs reactive power (inductive).
     comp_mvar = comp_fraction * p_charging_mvar(coords)
     if comp_mvar > 0:
-        pp.create_shunt(net, bus["P"], q_mvar=comp_mvar, p_mw=0.0,
-                        name="P-reactor")
+        pp.create_shunt(net, bus["P"], q_mvar=comp_mvar, p_mw=0.0, name="P-reactor")
     return net, coords, lengths, comp_mvar
 
 
@@ -175,8 +205,21 @@ def write_m(mpc, path, name, coords, lengths, header):
     L.append("%% bus data")
     L.append("%\tbus_i\ttype\tPd\tQd\tGs\tBs\tarea\tVm\tVa\tbaseKV\tzone\tVmax\tVmin")
     L.append("mpc.bus = [")
-    bf = ["%d", "%d", "%.4f", "%.4f", "%.1f", "%.1f", "%d",
-          "%.5f", "%.5f", "%.1f", "%d", "%.3f", "%.3f"]
+    bf = [
+        "%d",
+        "%d",
+        "%.4f",
+        "%.4f",
+        "%.1f",
+        "%.1f",
+        "%d",
+        "%.5f",
+        "%.5f",
+        "%.1f",
+        "%d",
+        "%.3f",
+        "%.3f",
+    ]
     for r in bus:
         L.append(fmt_row(r, bf))
     L.append("];")
@@ -190,10 +233,25 @@ def write_m(mpc, path, name, coords, lengths, header):
     L.append("];")
     L.append("")
     L.append("%% branch data")
-    L.append("%\tfbus\ttbus\tr\tx\tb\trateA\trateB\trateC\tratio\tangle\tstatus\tangmin\tangmax")
+    L.append(
+        "%\tfbus\ttbus\tr\tx\tb\trateA\trateB\trateC\tratio\tangle\tstatus\tangmin\tangmax"
+    )
     L.append("mpc.branch = [")
-    cf = ["%d", "%d", "%.6f", "%.6f", "%.6f", "%.1f", "%.1f", "%.1f",
-          "%.4f", "%.4f", "%d", "%.1f", "%.1f"]
+    cf = [
+        "%d",
+        "%d",
+        "%.6f",
+        "%.6f",
+        "%.6f",
+        "%.1f",
+        "%.1f",
+        "%.1f",
+        "%.4f",
+        "%.4f",
+        "%d",
+        "%.1f",
+        "%.1f",
+    ]
     for (f, t), r in zip(LINES, br):
         L.append(fmt_row(r, cf) + "\t%% %s-%s  %.1f km" % (f, t, lengths[(f, t)]))
     L.append("];")
@@ -206,17 +264,22 @@ def main():
     here = os.path.dirname(os.path.abspath(__file__))
     root = here
     while root != os.path.dirname(root) and not os.path.exists(
-            os.path.join(root, "pyproject.toml")):
+        os.path.join(root, "pyproject.toml")
+    ):
         root = os.path.dirname(root)
     outdir = os.path.join(root, "data", "networks", "ptx")
     resdir = os.path.join(outdir, "results")
     os.makedirs(resdir, exist_ok=True)
 
-    Zb = V_BASE_KV ** 2 / BASE_MVA
-    print("Base: %.0f kV, %.0f MVA  (Z_base=%.0f ohm)  line rating %.0f MVA = %.3f kA"
-          % (V_BASE_KV, BASE_MVA, Zb, RATE_A, MAX_I_KA))
-    print("Loads: A=%.1f MW (Q %.1f)  B=%.1f MW (Q %.1f)   P net=%+.0f MW\n"
-          % (A_PD, A_PD * Q_OVER_P, B_PD, B_PD * Q_OVER_P, P_NET_INJ))
+    Zb = V_BASE_KV**2 / BASE_MVA
+    print(
+        "Base: %.0f kV, %.0f MVA  (Z_base=%.0f ohm)  line rating %.0f MVA = %.3f kA"
+        % (V_BASE_KV, BASE_MVA, Zb, RATE_A, MAX_I_KA)
+    )
+    print(
+        "Loads: A=%.1f MW (Q %.1f)  B=%.1f MW (Q %.1f)   P net=%+.0f MW\n"
+        % (A_PD, A_PD * Q_OVER_P, B_PD, B_PD * Q_OVER_P, P_NET_INJ)
+    )
 
     for name, pc in SCENARIOS.items():
         cf = COMP_FRACTION if name in COMP_SCENARIOS else 0.0
@@ -236,8 +299,10 @@ def main():
             loss = net.res_line.pl_mw.sum()
             net.res_bus.to_csv(os.path.join(resdir, "res_bus_%s.csv" % name))
             net.res_line.to_csv(os.path.join(resdir, "res_line_%s.csv" % name))
-            status = ("OK   Vm[%.3f,%.3f]  maxLoad %5.0f%%  slack %+6.0f MW  loss %5.0f MW"
-                      % (vmin, vmax, load_pct, slack_p, loss))
+            status = (
+                "OK   Vm[%.3f,%.3f]  maxLoad %5.0f%%  slack %+6.0f MW  loss %5.0f MW"
+                % (vmin, vmax, load_pct, slack_p, loss)
+            )
         else:
             status = "DID NOT CONVERGE  (%s)" % (err if "err" in dir() else "n/a")
 
@@ -247,15 +312,19 @@ def main():
             "%% MATPOWER case -- Danish PtX siting demo, scenario %s" % name.upper(),
             "%% Generated by scripts/build_ptx_cases.py via pandapower to_mpc.",
             "%% Buses: 1=A(load) 2=B(load) 3=C(slack/ext-grid) 4=G(gas,PV) 5=P(PtX)",
-            "%% Coords[km]: " + ", ".join("%s=(%g,%g)" % (k, *coords[k])
-                                          for k in ["A", "B", "C", "G", "P"]),
+            "%% Coords[km]: "
+            + ", ".join(
+                "%s=(%g,%g)" % (k, *coords[k]) for k in ["A", "B", "C", "G", "P"]
+            ),
             "%% P net = %g MW solar - %g MW electrolysis = %+g MW (neg. load)"
             % (P_SOLAR_MW, P_ELYS_MW, P_NET_INJ),
             "%% Power flow: " + status,
         ]
         if comp_mvar > 0:
-            header.insert(-1, "%% Shunt reactor at P: %.0f MVAr (charging compensation)"
-                          % comp_mvar)
+            header.insert(
+                -1,
+                "%% Shunt reactor at P: %.0f MVAr (charging compensation)" % comp_mvar,
+            )
         path = os.path.join(outdir, "case_ptx_%s.m" % name)
         write_m(mpc, path, name, coords, lengths, header)
         tag = "  [P-reactor %.0f MVAr]" % comp_mvar if comp_mvar > 0 else ""
