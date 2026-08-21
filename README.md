@@ -82,10 +82,10 @@ This requires `prettier` and `markdownlint-cli2`.
 
 ## Repository Content
 
-The project is structured intot he following subcomponents:
+The project is structured into the following subcomponents:
 
 - [`src/data_generation`](src/data_generation/) handles the creation of synthetic grid
-  data for training gridFM and test its performance. It relies on
+  data for training gridFM and testing its performance. It relies on
   [gridfm-datakit](https://github.com/gridfm/gridfm-datakit) for generating the graph
   objects.
 
