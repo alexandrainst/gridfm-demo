@@ -113,3 +113,7 @@ site/
 
 # Node modules
 node_modules/
+
+# Flower App Bundle artifacts and per-run credentials cache
+*.fab
+.flwr/
