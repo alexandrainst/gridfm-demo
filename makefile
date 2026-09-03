@@ -96,6 +96,15 @@ docker:  ## Build Docker image and run container
 	@docker build -t gridfm_demo .
 	@docker run -it --rm gridfm_demo
 
+flower-up:  ## Start the local Flower federation (SuperLink + 2 SuperNodes + apps)
+	@docker compose -f src/federated_learning/docker-compose.yml up -d --build
+
+flower-down:  ## Stop the local Flower federation
+	@docker compose -f src/federated_learning/docker-compose.yml down
+
+flower-run:  ## Submit the experiment to the running federation
+	@uv run flwr run . local-deployment --stream
+
 tree:  ## Print directory tree
 	@tree -a --gitignore -I .git .
 
