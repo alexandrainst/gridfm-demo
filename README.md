@@ -97,3 +97,29 @@ The project is structured intot he following subcomponents:
   the model's accuracy and latency compares with standard power flow solvers. It also
   includes an example use of the final model within an optimisation task inspired by
   real challenges faced by TSO's.
+
+## Federated Learning Deployment
+
+This `src/federated_learning` subfolder contains code to deploy locally the federated
+learning framework [Flower](https://flower.ai/).
+
+### Local Deployment
+
+Deploy the Flower framework via the make targets:
+
+```bash
+make flower-up    # start
+make flower-down  # stop
+```
+
+## Running an experiment
+
+Run an flower experiment with via the make target:
+
+```bash
+make flower-run
+```
+
+We refer to the documentation at
+[`src/federated_learning/README.md`](src/federated_learning/README.md) for further
+information
