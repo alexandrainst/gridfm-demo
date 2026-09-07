@@ -122,4 +122,4 @@ make flower-run
 
 We refer to the documentation at
 [`src/federated_learning/README.md`](src/federated_learning/README.md) for further
-information
+information.
