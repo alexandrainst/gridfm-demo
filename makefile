@@ -104,7 +104,7 @@ data/federated_learning/client_%/case14_ieee/raw/bus_data.parquet: src/federated
 flower-clean-data:  ## Wipe generated client datasets
 	@rm -rf data/federated_learning
 
-flower-up:  ## Start the local Flower federation (SuperLink + 2 SuperNodes + apps)
+flower-up: flower-data  ## Start the local Flower federation (SuperLink + 2 SuperNodes + apps)
 	@docker compose -f src/federated_learning/docker-compose.yml up -d --build
 
 flower-down:  ## Stop the local Flower federation

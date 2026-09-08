@@ -71,6 +71,8 @@ services:
       - clientapp
       - --appio-api-address
       - supernode-1:9094
+    volumes:
+      - ../../data/federated_learning/client_0:/data/client_0
     networks:
       - flwr-network
     depends_on:
@@ -85,6 +87,8 @@ services:
       - clientapp
       - --appio-api-address
       - supernode-2:9095
+    volumes:
+      - ../../data/federated_learning/client_1:/data/client_1
     networks:
       - flwr-network
     depends_on:
