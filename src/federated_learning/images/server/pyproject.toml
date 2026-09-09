@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gridfm-flower-server-deps"
+version = "0.0.0"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "gridfm-graphkit @ git+https://github.com/alexandrainst/gridfm-graphkit@b3d663b",
+    "torch"
+]
+
+[tool.setuptools]
+py-modules = []

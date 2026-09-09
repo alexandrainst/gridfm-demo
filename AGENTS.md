@@ -1,6 +1,7 @@
 # Gridfm Demo
 
-Demo case bencharking gridFM-derived power flow solutions with state-of-the-art deterministic solutions from pandapower.
+Demo case bencharking gridFM-derived power flow solutions with state-of-the-art
+deterministic solutions from pandapower.
 
 ## Python Conventions
 
@@ -47,19 +48,19 @@ Demo case bencharking gridFM-derived power flow solutions with state-of-the-art 
 - When we import things in modules from other modules in the package, we always do it
   using relative imports:
 
-  ```python title="src/mypackage/module.py"
-  from .another_module import some_function
-  ```
+    ```python title="src/mypackage/module.py"
+    from .another_module import some_function
+    ```
 
 - When we import things in scripts from other modules or other scripts, we always do it
   using absolute imports:
 
-  ```python title="src/scripts/script.py"
-  from mypackage.module import some_function
-  from another_script import some_other_function
-  ```
+    ```python title="src/scripts/script.py"
+    from mypackage.module import some_function
+    from another_script import some_other_function
+    ```
 
-  This also holds when we're importing things from modules in our tests.
+    This also holds when we're importing things from modules in our tests.
 
 #### Type Hints
 
@@ -89,12 +90,12 @@ Demo case bencharking gridFM-derived power flow solutions with state-of-the-art 
 - Always use keyword arguments when calling functions, never positional arguments
 - Example:
 
-  ```python
-  def process_items(items: list[Item]) -> list[Result]:
-      ...
+    ```python
+    def process_items(items: list[Item]) -> list[Result]:
+        ...
 
-  process_items(items=items)
-  ```
+    process_items(items=items)
+    ```
 
 ### Documentation
 
@@ -107,24 +108,24 @@ Demo case bencharking gridFM-derived power flow solutions with state-of-the-art 
 - Always prefer ascii characters over unicode (e.g., arrows as -> over →)
 - Example:
 
-  ```python
-  def process_items(items: list[Item], log: bool) -> list[Result]:
-      """Process items and return results.
+    ```python
+    def process_items(items: list[Item], log: bool) -> list[Result]:
+        """Process items and return results.
 
-      Args:
-          items:
-            List of items to process.
-          log:
-            Whether to log progress.
+        Args:
+            items:
+              List of items to process.
+            log:
+              Whether to log progress.
 
-      Returns:
-          List of processed results.
+        Returns:
+            List of processed results.
 
-      Raises:
-          ValueError:
-            If items list is empty.
-      """
-      if log:
-          logger.info("Processing items")
-      return batch_process(items=items)
-  ```
+        Raises:
+            ValueError:
+              If items list is empty.
+        """
+        if log:
+            logger.info("Processing items")
+        return batch_process(items=items)
+    ```

@@ -1,6 +1,6 @@
 # This ensures that we can call `make <target>` even if `<target>` exists as a file or
 # directory.
-.PHONY: help
+.PHONY: help format-markdown
 
 # Exports all variables defined in the makefile available to scripts
 .EXPORT_ALL_VARIABLES:
@@ -96,8 +96,33 @@ docker:  ## Build Docker image and run container
 	@docker build -t gridfm_demo .
 	@docker run -it --rm gridfm_demo
 
+flower-data: data/federated_learning/client_0/case14_ieee/raw/bus_data.parquet data/federated_learning/client_1/case14_ieee/raw/bus_data.parquet
+
+data/federated_learning/client_%/case14_ieee/raw/bus_data.parquet: src/federated_learning/config/datakit_client_%.yaml
+	@uv run python src/federated_learning/scripts/generate_client_data.py --config $<
+
+flower-clean-data:  ## Wipe generated client datasets
+	@rm -rf data/federated_learning
+
+flower-build:  ## Build the Flower Docker images (serverapp + clientapp)
+	@docker compose -f src/federated_learning/docker-compose.yml build
+
+flower-up: flower-data  ## Start the local Flower federation (SuperLink + 2 SuperNodes + apps)
+	@docker compose -f src/federated_learning/docker-compose.yml up -d --build
+
+flower-down:  ## Stop the local Flower federation
+	@docker compose -f src/federated_learning/docker-compose.yml down
+
+flower-run:  ## Submit the experiment to the running federation
+	@uv run flwr run . local-deployment --stream
+
 tree:  ## Print directory tree
 	@tree -a --gitignore -I .git .
 
 check:  ## Lint, format, and type-check the code
 	@git add . && uv run pre-commit run --all-files; status=$$?; git reset >/dev/null; exit $$status
+
+format-markdown:
+	## markdownlint-cli2 does not support wrapping lines at 88 characters, so we use Prettier to wrap lines at 88 characters and then use markdownlint-cli2 to fix any remaining issues.
+	prettier --write --prose-wrap=always --print-width=88 *.md docs/**/*.md src/federated_learning/*.md
+	markdownlint-cli2 --fix *.md docs/**/*.md src/federated_learning/*.md
