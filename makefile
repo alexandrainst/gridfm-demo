@@ -82,7 +82,7 @@ tree:  ## Print directory tree
 	@tree -a --gitignore -I .git .
 
 check:  ## Lint, format, and type-check the code
-	@git add . && uv run pre-commit run --all-files; status=$$?; git reset >/dev/null; exit $$status
+	@uv run pre-commit run --files $$(git ls-files --cached --others --exclude-standard)
 
 format-markdown:
 	## markdownlint-cli2 does not support wrapping lines at 88 characters, so we use Prettier to wrap lines at 88 characters and then use markdownlint-cli2 to fix any remaining issues.
