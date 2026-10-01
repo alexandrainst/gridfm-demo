@@ -1,5 +1,5 @@
 # gridfm-datakit config: generate a default training dataset from an IEEE case.
-# Run:  gridfm_datakit config/datakit_case14.yaml
+# Run:  gridfm_datakit docs/examples/datakit/datakit_case14.yaml
 network:
   name: case14_ieee          # PGLib name (downloaded if absent): case14_ieee, case118_ieee, ...
   source: pglib              # pglib | pandapower | file
