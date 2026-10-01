@@ -1,6 +1,8 @@
 # This ensures that we can call `make <target>` even if `<target>` exists as a file or
 # directory.
-.PHONY: help format-markdown
+.PHONY: help install install-non-interactive install-uv install-pre-commit \
+	install-dependencies test docker flower-data flower-clean-data flower-build \
+	flower-up flower-down flower-run tree check format-markdown
 
 # Exports all variables defined in the makefile available to scripts
 .EXPORT_ALL_VARIABLES:
