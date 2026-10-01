@@ -96,7 +96,18 @@ docker:  ## Build Docker image and run container
 	@docker build -t gridfm_demo .
 	@docker run -it --rm gridfm_demo
 
-flower-up:  ## Start the local Flower federation (SuperLink + 2 SuperNodes + apps)
+flower-data: data/federated_learning/client_0/case14_ieee/raw/bus_data.parquet data/federated_learning/client_1/case14_ieee/raw/bus_data.parquet
+
+data/federated_learning/client_%/case14_ieee/raw/bus_data.parquet: src/federated_learning/config/datakit_client_%.yaml
+	@uv run python src/federated_learning/scripts/generate_client_data.py --config $<
+
+flower-clean-data:  ## Wipe generated client datasets
+	@rm -rf data/federated_learning
+
+flower-build:  ## Build the Flower Docker images (serverapp + clientapp)
+	@docker compose -f src/federated_learning/docker-compose.yml build
+
+flower-up: flower-data  ## Start the local Flower federation (SuperLink + 2 SuperNodes + apps)
 	@docker compose -f src/federated_learning/docker-compose.yml up -d --build
 
 flower-down:  ## Stop the local Flower federation

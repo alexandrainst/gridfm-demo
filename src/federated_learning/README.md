@@ -1,95 +1,110 @@
 # Federated Learning with Flower
 
-This subfolder deploys the "getting started" example from the federated learning
-framework [Flower](https://flower.ai/). The full stack runs locally via `docker`.
+This subfolder trains a GridFM model in a federated setting using
+[Flower](https://flower.ai/). Two clients each hold a private synthetic power-grid
+dataset generated locally by
+[`gridfm-datakit`](https://github.com/gridfm/gridfm-datakit) and a server coordinates
+the federated learning such that the clients cooperatively train a
+[`gridfm-graphkit`](https://github.com/gridfm/gridfm-graphkit) model.
 
-> TODO: The current implementation is Flower's NumPy quickstart and serves as a simple
-> starting point. This subfolder should train a GridFM in a federated setting using the
-> open-source federated learning framework [Flower](https://flower.ai/). We should
-> replace quickstart example with grid data generated using gridfm-datakit and train a
-> model with gridfm-graphkit. It should be possible to preserve the overall structure of
-> the deployment.
+## Quickstart
 
-## Local Deployment
+### Generate Synthetic Dataset
 
-Deploy the Flower framework using `docker-compose`:
+Generate one synthetic dataset per client under
+`data/federated_learning/client_{0,1}/case14_ieee/raw/*.parquet` with:
 
 ```bash
-docker compose -f src/federated_learning/docker-compose.yml up -d --build   # start
-docker compose -f src/federated_learning/docker-compose.yml down            # stop
+make flower-data
 ```
 
-Or via the `make` targets from the root of the project:
+The difference between the two synthetic datasets originates from their different seeds,
+see `settings.seed` in `src/federated_learning/config/datakit_client_{0,1}.yaml`.
+
+### Deploy Federated Learning Framework
+
+Deploy the federated learning framework with:
 
 ```bash
 make flower-up
-make flower-down
 ```
 
-## Running an experiment
+This command binds and mounts each client's data directory into its `clientapp`
+container, then brings up the full Flower stack (`SuperLink`, two `SuperNode`s, one
+`ServerApp`, two `ClientApp`s). See [Architecture](./README.md#architecture) for further
+information about the different components in the flower stack.
 
-Run the flower experiment with the command:
+### Run Experiment
 
-```bash
-uv run flwr run . local-deployment --stream
-```
-
-Or using the make target from the project root:
+Run a flower experiment with:
 
 ```bash
 make flower-run
 ```
 
+This command submits the run defined by the settings in
+[`pyproject.toml`](./../../pyproject.toml) of the form `[tool.flwr.*]`.
+
+### Clean Up
+
+Remove the deployed flower framework with:
+
+```bash
+make flower-down
+```
+
+This command will remove the running containers.
+
+Remove the generated data with:
+
+```bash
+make flower-clean-data
+```
+
+This command will remove all files in the folder
+[`data/federated_learning`](./../../data/federated_learning/)
+
 ## Architecture
+
+This section servers as a brief summary of the flower architecture. It provides users of
+this project with an overview of the different components in the flower stack. Refer to
+the flower documentation
+[flower.ai/docs/framework/explanation-flower-architecture](https://flower.ai/docs/framework/explanation-flower-architecture.html)
+for further information.
 
 ### Components
 
-The deployment is composed of the following Flower components:
-
-- [SuperLink](https://flower.ai/docs/framework/): The server-side long-running control
-  plane container. This component is responsible for routing messages between the server
-  and clients and storing run state.
-- [SuperNode](https://flower.ai/docs/framework/): The client-side long-running daemon
-  container. Owns a local data partition and dials into the SuperLink. The component is
-  responsible for forwarding work to its ClientApp container.
-- [SuperExec](https://flower.ai/docs/framework/): The executor process
-  (`flower-superexec`) running in the `serverapp` and `clientapp` containers. This
-  component is responsible for receiving the Flower App Bundle (FAB) from SuperLink or
-  SuperNode and spawning the ServerApp or ClientApp as a subprocess. This is the
-  container performing the actual work. For more information about the FAB refer to
-  [flower.ai/docs/framework/how-to-configure-pyproject-toml.html](https://flower.ai/docs/framework/how-to-configure-pyproject-toml.html).
-- [ServerApp](https://flower.ai/docs/framework/): This component contains the
-  aggregation and strategy logic. Runs as a subprocess spawned by the `serverapp`
+- SuperLink: control-plane container responsible for routing messages between the server
+  and clients. This container also stores the run state.
+- SuperNode: client-side long-running daemon. Owns a local data partition and dials into
+  the SuperLink. Forwards work to its ClientApp container.
+- SuperExec: the executor process (`flower-superexec`) running in the `serverapp` and
+  `clientapp` containers. Receives the Flower App Bundle (FAB) from SuperLink or
+  SuperNode and spawns the ServerApp or ClientApp as a subprocess.
+- ServerApp: aggregation + strategy. Runs as a subprocess spawned by the `serverapp`
   container's SuperExec for the duration of a run.
-- [ClientApp](https://flower.ai/docs/framework/): the client-side per-round logic
-  responsible for data loading and model training. Runs as a subprocess spawned by each
-  `clientapp` container's SuperExec on every incoming message.
+- ClientApp: per-round data-loading + model training. Runs as a subprocess spawned by
+  each `clientapp` container's SuperExec on every incoming message.
 
-The current implementation uses
-[process isolation mode](https://flower.ai/docs/framework/), such that the `ServerApp`
-and `ClientApp` do not run inside SuperLink or SuperNode but in separate containers.
-This physically separates the runtime environment of the model training from the Flower
-control plane.
-
-The local deployment aims to mirror a production deployment with a control-plane
-container coordinating multiple client-side worker containers. This should make it easy
-to apply the current demo in a production setting.
+The deployment uses [process isolation mode](https://flower.ai/docs/framework/):
+`ServerApp` and `ClientApp` do not run inside `SuperLink`/`SuperNode`, but in separate
+containers. This physically separates the training runtime from the Flower control plane
+and mirrors a production deployment.
 
 ### Run Lifecycle
 
-When a Flower experiment is run with `uv run flwr run . local-deployment --stream` then
-the following actions take place:
+Submitting `uv run flwr run . local-deployment --stream`:
 
-- The `flwr` CLI reads the `[tool.flwr.*]` sections of the root `pyproject.toml`
-- The files `server_app.py` and `client_app.py` (plus any modules they import) are
-  zipped into a Flower App Bundle (FAB)
-- The FAB is uploaded to the SuperLink via the Exec API.
-- The SuperLink sends the FAB to the connected SuperExec containers.
+- The `flwr` CLI reads the `[tool.flwr.*]` sections of the root `pyproject.toml`.
+- `server_app.py` and `client_app.py` (plus imports) are zipped into a Flower App Bundle
+  (FAB) and uploaded to the SuperLink via the Exec API.
+- The SuperLink ships the FAB to the connected SuperExec containers.
 - The `serverapp` container installs the FAB and spawns a subprocess that runs the
   `ServerApp` for the duration of the run.
-- The `ServerApp` sends messages to clients via the SuperLink which routes each message
-  to the corresponding SuperNode which then forwards it to its `clientapp` container.
+- The `ServerApp` sends messages to clients via the SuperLink, which routes each message
+  to the corresponding SuperNode, which then forwards it to its `clientapp` container.
 - Each `clientapp` container installs the FAB (once) and spawns a fresh subprocess per
   incoming message to run the `ClientApp`.
-- The result of the `clientapp` is communated back to the `serverapp` via the SuperNode
-  and SuperLink.
+- Each `ClientApp` reads its local data partition from the bind-mounted volume, performs
+  `local-epochs` of Lightning training, and returns the updated weights.
+- Results are communicated back to the `serverapp` via the SuperNode and SuperLink.

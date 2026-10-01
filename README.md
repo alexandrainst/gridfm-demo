@@ -100,7 +100,7 @@ The project is structured intot he following subcomponents:
 
 ## Federated Learning Deployment
 
-This `src/federated_learning` subfolder contains code to deploy locally the federated
+The `src/federated_learning` subfolder contains code to locally deploy the federated
 learning framework [Flower](https://flower.ai/).
 
 ### Local Deployment
@@ -108,8 +108,8 @@ learning framework [Flower](https://flower.ai/).
 Deploy the Flower framework via the make targets:
 
 ```bash
-make flower-up    # start
-make flower-down  # stop
+make flower-up
+make flower-down
 ```
 
 ## Running an experiment
