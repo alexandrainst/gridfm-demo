@@ -18,7 +18,7 @@ deterministic solutions from pandapower.
 - Prefer many small modules over few large ones
 - All code modules are in the `src/<project_name>` directory. These are not executed but
   are imported by the scripts
-- All scripts are in the `src/scripts` directory. These are executed with `uv run`
+- All scripts are in the `scripts` directory. These are executed with `uv run`
 - All tests are in the `tests/` directory
 - Configs are sometimes available and if so, they are in the `config/` directory
 - There will always be a `pyproject.toml` file in the root directory
@@ -55,7 +55,7 @@ deterministic solutions from pandapower.
 - When we import things in scripts from other modules or other scripts, we always do it
   using absolute imports:
 
-    ```python title="src/scripts/script.py"
+    ```python title="scripts/script.py"
     from mypackage.module import some_function
     from another_script import some_other_function
     ```
