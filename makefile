@@ -51,10 +51,7 @@ install-dependencies:
 	@uv sync --all-extras --all-groups --python 3.12
 
 test:  ## Run tests
-	@uv run pytest && \
-		uv run readme-cov && \
-		git add README.md && \
-		git commit -m "docs: Update coverage badge"
+	@uv run pytest && uv run readme-cov
 
 docker:  ## Build Docker image and run container
 	@make install
