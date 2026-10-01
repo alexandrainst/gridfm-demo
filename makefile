@@ -1,7 +1,7 @@
 # This ensures that we can call `make <target>` even if `<target>` exists as a file or
 # directory.
 .PHONY: help install install-non-interactive install-uv install-pre-commit \
-	install-dependencies test docker flower-data flower-clean-data flower-build \
+	install-dependencies test flower-data flower-clean-data flower-build \
 	flower-up flower-down flower-run tree check format-markdown
 
 # Exports all variables defined in the makefile available to scripts
@@ -54,11 +54,6 @@ install-dependencies:
 
 test:  ## Run tests
 	@uv run pytest && uv run readme-cov
-
-docker:  ## Build Docker image and run container
-	@make install
-	@docker build -t gridfm_demo .
-	@docker run -it --rm gridfm_demo
 
 flower-data: data/federated_learning/client_0/case14_ieee/raw/bus_data.parquet data/federated_learning/client_1/case14_ieee/raw/bus_data.parquet
 
