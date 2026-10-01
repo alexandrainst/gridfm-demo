@@ -132,8 +132,8 @@ environments = ["sys_platform == 'linux'"]
 [tool.uv.sources]
 # We pin the gridfm repos on the commit corresponding to the latest release.
 # We also point to Alexandra's own fork of the project, in case we need adapt these projects.
-gridfm-datakit = { git = "https://github.com/alexandrainst/gridfm-datakit" , branch="a3fc228" }
-gridfm-graphkit = { git = "https://github.com/alexandrainst/gridfm-graphkit", branch="b3d663b" }
+gridfm-datakit = { git = "https://github.com/alexandrainst/gridfm-datakit" , rev="a3fc228" }
+gridfm-graphkit = { git = "https://github.com/alexandrainst/gridfm-graphkit", rev="b3d663b" }
 
 [build-system]
 requires = ["hatchling"]

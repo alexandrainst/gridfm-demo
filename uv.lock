@@ -1033,7 +1033,7 @@ wheels = [
 [[package]]
 name = "gridfm-datakit"
 version = "1.0.5"
-source = { git = "https://github.com/alexandrainst/gridfm-datakit?branch=a3fc228#a3fc228a564724dfdb303b1f938d27126ebe3a2a" }
+source = { git = "https://github.com/alexandrainst/gridfm-datakit?rev=a3fc228#a3fc228a564724dfdb303b1f938d27126ebe3a2a" }
 dependencies = [
     { name = "ipyfilechooser", marker = "sys_platform == 'linux'" },
     { name = "ipykernel", marker = "sys_platform == 'linux'" },
@@ -1086,8 +1086,8 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "flwr", extras = ["simulation"], specifier = "==1.23.0" },
-    { name = "gridfm-datakit", git = "https://github.com/alexandrainst/gridfm-datakit?branch=a3fc228" },
-    { name = "gridfm-graphkit", git = "https://github.com/alexandrainst/gridfm-graphkit?branch=b3d663b" },
+    { name = "gridfm-datakit", git = "https://github.com/alexandrainst/gridfm-datakit?rev=a3fc228" },
+    { name = "gridfm-graphkit", git = "https://github.com/alexandrainst/gridfm-graphkit?rev=b3d663b" },
     { name = "matplotlib", specifier = ">=3.11.0" },
     { name = "numpy", specifier = ">=2.4.6" },
     { name = "pandapower", specifier = ">=3.5.4" },
@@ -1110,7 +1110,7 @@ dev = [
 [[package]]
 name = "gridfm-graphkit"
 version = "0.8.1"
-source = { git = "https://github.com/alexandrainst/gridfm-graphkit?branch=b3d663b#b3d663b62179222c1ebec00ee29f67ea50e68c0b" }
+source = { git = "https://github.com/alexandrainst/gridfm-graphkit?rev=b3d663b#b3d663b62179222c1ebec00ee29f67ea50e68c0b" }
 dependencies = [
     { name = "gdown", marker = "sys_platform == 'linux'" },
     { name = "gridfm-datakit", marker = "sys_platform == 'linux'" },
