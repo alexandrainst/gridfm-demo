@@ -1,30 +1,17 @@
 # This ensures that we can call `make <target>` even if `<target>` exists as a file or
 # directory.
-.PHONY: help install install-uv install-pre-commit install-dependencies test \
-	flower-data flower-clean-data flower-build flower-up flower-down flower-run \
-	tree check format-markdown
-
-# Lets `install` find `uv` right after the uv installer puts it in `~/.local/bin`
-export PATH := ${HOME}/.local/bin:$(PATH)
+.PHONY: help install install-pre-commit install-dependencies test flower-data \
+	flower-clean-data flower-build flower-up flower-down flower-run tree check \
+	format-markdown
 
 help:
 	@grep -E '^[0-9a-zA-Z_-]+:.*?## .*$$' makefile | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 install: ## Install dependencies
 	@echo "Installing the 'gridfm_demo' project..."
-	@$(MAKE) --quiet install-uv
 	@$(MAKE) --quiet install-dependencies
 	@echo "Installed the 'gridfm_demo' project! You can now activate your virtual environment with 'source .venv/bin/activate'."
 	@echo "Note that this is a 'uv' project. Use 'uv add <package>' to install new dependencies and 'uv remove <package>' to remove them."
-
-install-uv:
-	@if [ "$(shell which uv)" = "" ]; then \
-		curl -LsSf https://astral.sh/uv/install.sh | sh; \
-		echo "Installed uv."; \
-	else \
-		echo "Updating uv..."; \
-		uv self update || true; \
-	fi
 
 install-pre-commit:
 	@uv run pre-commit install

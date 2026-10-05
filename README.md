@@ -32,6 +32,12 @@ Developer:
 
 ## Setup
 
+### Prerequisites
+
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/). uv downloads the
+Python version the project needs, so Python does not have to be installed first. The Nix
+development shell below already includes uv.
+
 ### Nix development shell
 
 A `flake.nix` is provided for developers using [Nix](https://nixos.org/). It supplies
