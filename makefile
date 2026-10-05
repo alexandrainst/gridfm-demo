@@ -1,8 +1,8 @@
 # This ensures that we can call `make <target>` even if `<target>` exists as a file or
 # directory.
-.PHONY: help install install-non-interactive install-uv install-pre-commit \
-	install-dependencies test flower-data flower-clean-data flower-build \
-	flower-up flower-down flower-run tree check format-markdown
+.PHONY: help install install-uv install-pre-commit install-dependencies test \
+	flower-data flower-clean-data flower-build flower-up flower-down flower-run \
+	tree check format-markdown
 
 # Lets `install` find `uv` right after the uv installer puts it in `~/.local/bin`
 export PATH := ${HOME}/.local/bin:$(PATH)
@@ -16,10 +16,6 @@ install: ## Install dependencies
 	@$(MAKE) --quiet install-dependencies
 	@echo "Installed the 'gridfm_demo' project! You can now activate your virtual environment with 'source .venv/bin/activate'."
 	@echo "Note that this is a 'uv' project. Use 'uv add <package>' to install new dependencies and 'uv remove <package>' to remove them."
-
-install-non-interactive:
-	@$(MAKE) --quiet install-uv
-	@$(MAKE) --quiet install-dependencies
 
 install-uv:
 	@if [ "$(shell which uv)" = "" ]; then \
