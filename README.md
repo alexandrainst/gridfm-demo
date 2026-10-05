@@ -24,7 +24,7 @@ topologies.
 
 ---
 
-[![Code Coverage](https://img.shields.io/badge/Coverage-0%25-red.svg)](https://github.com/alexandrainst/gridfm_demo/tree/main/tests)
+[![Code Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen.svg)](https://github.com/alexandrainst/gridfm_demo/tree/main/tests)
 
 Developer:
 
@@ -34,9 +34,11 @@ Developer:
 
 ### Prerequisites
 
-Install [uv](https://docs.astral.sh/uv/getting-started/installation/). uv downloads the
-Python version the project needs, so Python does not have to be installed first. The Nix
-development shell below already includes uv.
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
+- [Docker](https://docs.docker.com/get-docker/) with Docker Compose
+- [tree](https://oldmanprogrammer.net/source.php?dir=projects/tree)
+- [Prettier](https://prettier.io/)
+- [markdownlint-cli2](https://github.com/DavidAnson/markdownlint-cli2)
 
 ### Nix development shell
 
@@ -83,8 +85,6 @@ run:
 ```bash
 make format-markdown
 ```
-
-This requires `prettier` and `markdownlint-cli2`.
 
 ## Repository Content
 
