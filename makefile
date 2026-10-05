@@ -14,8 +14,7 @@ install: ## Install dependencies
 	@echo "Note that this is a 'uv' project. Use 'uv add <package>' to install new dependencies and 'uv remove <package>' to remove them."
 
 install-dependencies:
-	@uv python install 3.12
-	@uv sync --all-extras --all-groups --python 3.12
+	@uv sync --all-extras --all-groups
 
 install-pre-commit:
 	@uv run pre-commit install
