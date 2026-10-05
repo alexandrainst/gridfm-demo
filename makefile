@@ -7,9 +7,6 @@
 # Lets `install` find `uv` right after the uv installer puts it in `~/.local/bin`
 export PATH := ${HOME}/.local/bin:$(PATH)
 
-# Set the shell to bash, enabling the use of `source` statements
-SHELL := /bin/bash
-
 help:
 	@grep -E '^[0-9a-zA-Z_-]+:.*?## .*$$' makefile | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
