@@ -4,8 +4,8 @@
 	install-dependencies test flower-data flower-clean-data flower-build \
 	flower-up flower-down flower-run tree check format-markdown
 
-# Set the PATH env var used by cargo and uv
-export PATH := ${HOME}/.local/bin:${HOME}/.cargo/bin:$(PATH)
+# Lets `install` find `uv` right after the uv installer puts it in `~/.local/bin`
+export PATH := ${HOME}/.local/bin:$(PATH)
 
 # Set the shell to bash, enabling the use of `source` statements
 SHELL := /bin/bash
@@ -26,13 +26,9 @@ install-non-interactive:
 
 install-uv:
 	@if [ "$(shell which uv)" = "" ]; then \
-		if [ "$(shell which rustup)" = "" ]; then \
-			curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; \
-			echo "Installed Rust."; \
-		fi; \
 		curl -LsSf https://astral.sh/uv/install.sh | sh; \
 		echo "Installed uv."; \
-    else \
+	else \
 		echo "Updating uv..."; \
 		uv self update || true; \
 	fi
