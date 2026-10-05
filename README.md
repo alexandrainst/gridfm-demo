@@ -26,9 +26,10 @@ topologies.
 
 [![Code Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen.svg)](https://github.com/alexandrainst/gridfm_demo/tree/main/tests)
 
-Developer:
+Developers:
 
 - Étienne Bourbeau (<27770178+bourdeet@users.noreply.github.com>)
+- Michael Iversen (<michael.iversen@alexandra.dk>)
 
 ## Setup
 

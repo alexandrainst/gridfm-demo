@@ -5,9 +5,11 @@ description = "Demo case bencharking gridFM-derived power flow solutions with st
 readme = "README.md"
 authors = [
   {name = "Étienne Bourbeau", email = "27770178+bourdeet@users.noreply.github.com"},
+  {name = "Michael Iversen", email = "michael.iversen@alexandra.dk"},
 ]
 maintainers = [
   {name = "Étienne Bourbeau", email = "27770178+bourdeet@users.noreply.github.com"},
+  {name = "Michael Iversen", email = "michael.iversen@alexandra.dk"},
 ]
 requires-python = ">=3.12,<4.0"
 dependencies = [
