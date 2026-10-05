@@ -126,6 +126,8 @@ testpaths = [
 
 [tool.uv]
 environments = ["sys_platform == 'linux'"]
+# `gridfm-datakit` imports `juliapkg.deps.run_julia`, which juliapkg 0.1.26 removed.
+constraint-dependencies = ["juliapkg<0.1.26"]
 
 [tool.uv.sources]
 # We pin the gridfm repos on the commit corresponding to the latest release.
