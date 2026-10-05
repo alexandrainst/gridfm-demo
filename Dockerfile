@@ -1,4 +1,4 @@
-FROM python:3.12-slim-bookworm AS backend
+FROM python:3.14-slim-bookworm AS backend
 COPY --from=ghcr.io/astral-sh/uv:0.6.11 /uv /uvx /bin/
 ENV PATH="/root/.local/bin:/project/.venv/bin/:${PATH}"
 WORKDIR /project
