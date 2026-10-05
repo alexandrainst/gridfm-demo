@@ -9,7 +9,8 @@
 #
 # Run:
 #   MLFLOW_ALLOW_FILE_STORE=true gridfm_graphkit train \
-#       --config examples/HGNS_PF_case14_small.yaml --data_path data/gridfm_datasets
+#       --config docs/examples/graphkit/HGNS_PF_case14_small.yaml \
+#       --data_path data/gridfm_datasets
 callbacks:
   patience: 100
   tol: 0
