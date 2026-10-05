@@ -99,9 +99,6 @@ data/*
 models/*
 !models/.gitkeep
 
-# Dotenv file with name and email
-.name_and_email
-
 # Linting cache
 .ruff_cache/
 

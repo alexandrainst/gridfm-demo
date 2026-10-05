@@ -4,5 +4,5 @@
   "features": {
     "ghcr.io/devcontainers-contrib/features/coverage-py:2": {}
   },
-  "postCreateCommand": "make install-non-interactive"
+  "postCreateCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh && PATH=\"$HOME/.local/bin:$PATH\" make install"
 }
