@@ -4,13 +4,6 @@
 	install-dependencies test flower-data flower-clean-data flower-build \
 	flower-up flower-down flower-run tree check format-markdown
 
-# Exports all variables defined in the makefile available to scripts
-.EXPORT_ALL_VARIABLES:
-
-# Set gRPC environment variables, which prevents some errors with the `grpcio` package
-export GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1
-export GRPC_PYTHON_BUILD_SYSTEM_ZLIB=1
-
 # Set the PATH env var used by cargo and uv
 export PATH := ${HOME}/.local/bin:${HOME}/.cargo/bin:$(PATH)
 
