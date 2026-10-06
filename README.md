@@ -89,8 +89,9 @@ make format-markdown
 
 ## Repository Content
 
-- `gridfm_demo/` is the Python package. Flower ships the project folder to the
-  federation as is, so the package sits at the repo root rather than in `src/`.
+- `flower_app/` is the Flower App: the code Flower ships to the server and clients.
+  Flower ships the project folder to the federation as is, so the package sits at the
+  repo root rather than in `src/`.
   - `client_app.py` and `server_app.py` are the Flower ClientApp and ServerApp. They
       run the experiment named in the run config.
   - `interface.py` defines the entry points an experiment provides. `paths.py` holds

@@ -11,7 +11,7 @@ the clients so that they cooperatively train a
 The make targets take two variables:
 
 - `FEDERATION`: a folder in `federations/`. Default `case14_2clients`.
-- `EXPERIMENT`: a folder in `gridfm_demo/experiments/`. Default `fedavg`.
+- `EXPERIMENT`: a folder in `flower_app/experiments/`. Default `fedavg`.
 
 ### Generate Synthetic Dataset
 
@@ -89,15 +89,15 @@ This command will remove the folder `federations/<FEDERATION>/data/`.
 
 ## Experiments
 
-The Flower app is one `ClientApp` (`gridfm_demo/client_app.py`) and one `ServerApp`
-(`gridfm_demo/server_app.py`). Both look up the experiment named by the run config key
-`experiment` in `gridfm_demo/experiments/__init__.py` and call its server or client.
+The Flower app is one `ClientApp` (`flower_app/client_app.py`) and one `ServerApp`
+(`flower_app/server_app.py`). Both look up the experiment named by the run config key
+`experiment` in `flower_app/experiments/__init__.py` and call its server or client.
 Every run ships the whole project, so all experiments are available without rebuilding
 the images.
 
-An experiment is a package in `gridfm_demo/experiments/<name>/`:
+An experiment is a package in `flower_app/experiments/<name>/`:
 
-- `__init__.py`: `EXPERIMENT`, an `Experiment` (`gridfm_demo/interface.py`) holding the
+- `__init__.py`: `EXPERIMENT`, an `Experiment` (`flower_app/interface.py`) holding the
   experiment's server and client entry points.
 - `server.py`: `main(grid, context, paths)`, the strategy, number of rounds and saved
   outputs.
@@ -107,10 +107,10 @@ An experiment is a package in `gridfm_demo/experiments/<name>/`:
 `experiments/fedavg/` also holds its graphkit configuration (`graphkit_config.py`), task
 construction (`task.py`) and Lightning trainer (`trainer.py`).
 
-Experiments import only `gridfm_demo/interface.py` from the driver. The ServerApp passes
+Experiments import only `flower_app/interface.py` from the driver. The ServerApp passes
 a `ServerPaths` with the run's `output_dir`. The ClientApp passes a `ClientPaths` with
 the client's `log_dir`, and a `ClientDataset` read from the SuperNode's node config by
-`gridfm_demo/node_config.py`:
+`flower_app/node_config.py`:
 
 - `data-dir`: the dataset directory in the ClientApp container.
 - `networks`: comma-separated network names, each a subdirectory of `data-dir`.
@@ -121,9 +121,9 @@ as in `networks='case14_ieee,case30_ieee' scenarios='40,40'`.
 
 ### Add an Experiment
 
-1. Copy `gridfm_demo/experiments/fedavg/` to `gridfm_demo/experiments/<name>/` and
-   change what differs.
-2. Register its `EXPERIMENT` in `EXPERIMENTS` in `gridfm_demo/experiments/__init__.py`.
+1. Copy `flower_app/experiments/fedavg/` to `flower_app/experiments/<name>/` and change
+   what differs.
+2. Register its `EXPERIMENT` in `EXPERIMENTS` in `flower_app/experiments/__init__.py`.
 3. Declare its run config keys with a default in `[tool.flwr.app.config.<name>]` of
    `pyproject.toml`. `flwr run` only overrides declared keys. The experiment reads them
    as `<name>.<key>`.

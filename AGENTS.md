@@ -16,12 +16,12 @@ deterministic solutions from pandapower.
 
 - Keep modules focused and cohesive
 - Prefer many small modules over few large ones
-- All code modules are in the `gridfm_demo` directory at the repo root, not in `src/`.
-  Flower ships the project folder as is and imports the package from its root. The
-  package root holds only the Flower driver; experiment code lives in the experiment
-  packages. Code that does not run in the federation lives in `scripts/`
-- Flower experiments are packages in `gridfm_demo/experiments/<name>/`, registered in
-  `gridfm_demo/experiments/__init__.py`. Their run config defaults are in
+- The Flower App is the `flower_app` package at the repo root, not in `src/`. Flower
+  ships the project folder as is and imports the package from its root. The package root
+  holds only the Flower driver; experiment code lives in the experiment packages. Code
+  that does not run in the federation lives in `scripts/`
+- Flower experiments are packages in `flower_app/experiments/<name>/`, registered in
+  `flower_app/experiments/__init__.py`. Their run config defaults are in
   `[tool.flwr.app.config.<name>]` of `pyproject.toml`. See `federations/README.md` for
   adding one
 - All scripts are in the `scripts` directory. These are executed with `uv run`

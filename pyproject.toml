@@ -107,7 +107,7 @@ addopts = [
   '--durations=10',
   '--color=yes',
   '--doctest-modules',
-  '--cov=gridfm_demo',
+  '--cov=flower_app',
 ]
 xfail_strict = true
 filterwarnings = [
@@ -120,7 +120,7 @@ filterwarnings = [
   "ignore::FutureWarning",
 ]
 log_cli_level = "info"
-# Not `gridfm_demo`: collecting its doctests imports gridfm-graphkit, which needs
+# Not `flower_app`: collecting its doctests imports gridfm-graphkit, which needs
 # `torch_scatter` (installed only in the Flower images).
 testpaths = [
   "tests",
@@ -141,12 +141,15 @@ gridfm-graphkit = { git = "https://github.com/alexandrainst/gridfm-graphkit", re
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.hatch.build.targets.wheel]
+packages = ["flower_app"]
+
 [tool.flwr.app]
 publisher = "alexandra"
 
 [tool.flwr.app.components]
-serverapp = "gridfm_demo.server_app:app"
-clientapp = "gridfm_demo.client_app:app"
+serverapp = "flower_app.server_app:app"
+clientapp = "flower_app.client_app:app"
 
 # Defaults of every run config key. `flwr run --run-config` only overrides keys
 # declared here, so a new experiment's keys must be added with a default. Each

@@ -1,4 +1,4 @@
-"""Tests for the `gridfm_demo.node_config` module."""
+"""Tests for the `flower_app.node_config` module."""
 
 from pathlib import Path
 
@@ -6,8 +6,8 @@ import pytest
 from flwr.app import Context, RecordDict
 from flwr.common.typing import UserConfig
 
-from gridfm_demo.interface import ClientDataset
-from gridfm_demo.node_config import client_dataset
+from flower_app.interface import ClientDataset
+from flower_app.node_config import client_dataset
 
 
 def test_client_dataset_reads_single_network() -> None:

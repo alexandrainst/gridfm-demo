@@ -1,1 +1,1 @@
-"""Test suite for the gridfm_demo package."""
+"""Test suite of the gridfm_demo project."""
