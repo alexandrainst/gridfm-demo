@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Build 30-day, 1-hour time-series profiles for the simple 5-bus PtX network.
+"""Build 30-day, 1-hour time-series profiles for the simple 5-bus PtX network.
 
 Three normalised profiles (one value per hour, 720 steps):
 
@@ -19,11 +18,10 @@ Saved to data/profiles/ as .npz and .csv; also plotted to .png.
 """
 
 import os
-import numpy as np
-import matplotlib
 
-matplotlib.use("Agg")
+import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 
 # ------------------------------------------------------------------ config ---
 DAYS = 30
@@ -62,7 +60,12 @@ GEN_STEP_DAY = 15
 GEN_HI, GEN_LO = 1.00, 0.75
 
 
-def consumption_profile():
+def consumption_profile() -> tuple[np.ndarray, np.ndarray]:
+    """Return the DSO consumption profile.
+
+    Returns:
+        Tuple of the load factor and the seasonal envelope, one value per step.
+    """
     h = t_h % 24
     morning = MORN_A * np.exp(-((h - MORN_H) ** 2) / (2 * MORN_W**2))
     evening = EVE_A * np.exp(-((h - EVE_H) ** 2) / (2 * EVE_W**2))
@@ -73,7 +76,12 @@ def consumption_profile():
     return seasonal * daily, seasonal
 
 
-def ptx_profile():
+def ptx_profile() -> np.ndarray:
+    """Return the PtX electrolyzer setpoint profile.
+
+    Returns:
+        Setpoint as a fraction of rated consumption, one value per step.
+    """
     p = np.zeros(N)
     for d0, d1, v0, v1 in PTX_SEGMENTS:
         i0 = int(round(d0 * 24 / DT_H))
@@ -82,13 +90,24 @@ def ptx_profile():
     return p
 
 
-def generator_profile():
+def generator_profile() -> np.ndarray:
+    """Return the gas plant output profile.
+
+    Returns:
+        Output as a fraction of rated output, one value per step.
+    """
     g = np.full(N, GEN_HI)
     g[GEN_STEP_DAY * 24 // DT_H :] = GEN_LO
     return g
 
 
-def build():
+def build() -> dict[str, np.ndarray]:
+    """Build all profiles.
+
+    Returns:
+        Arrays keyed by `t_h`, `t_d`, `consumption`, `seasonal`, `ptx` and
+        `generator`.
+    """
     cons, seasonal = consumption_profile()
     return dict(
         t_h=t_h,
@@ -100,7 +119,15 @@ def build():
     )
 
 
-def save(prof, outdir):
+def save(prof: dict[str, np.ndarray], outdir: str) -> None:
+    """Save the profiles as `.npz` and `.csv` files.
+
+    Args:
+        prof:
+          Profiles as returned by `build`.
+        outdir:
+          Existing output directory.
+    """
     np.savez(
         os.path.join(outdir, "profiles_30day.npz"),
         t_h=prof["t_h"],
@@ -120,7 +147,15 @@ def save(prof, outdir):
     )
 
 
-def plot(prof, outpng):
+def plot(prof: dict[str, np.ndarray], outpng: str) -> None:
+    """Plot the profiles and save the figure as an image.
+
+    Args:
+        prof:
+          Profiles as returned by `build`.
+        outpng:
+          Output image path.
+    """
     td = prof["t_d"]
     fig, ax = plt.subplots(3, 1, figsize=(13, 9), sharex=True)
 
@@ -195,7 +230,9 @@ def plot(prof, outpng):
     print("wrote", outpng)
 
 
-def main():
+def main() -> None:
+    """Build, save and plot the 30-day profiles."""
+    matplotlib.use("Agg")
     here = os.path.dirname(os.path.abspath(__file__))
     root = here
     while root != os.path.dirname(root) and not os.path.exists(

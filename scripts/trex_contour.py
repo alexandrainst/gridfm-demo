@@ -7,19 +7,36 @@ Run directly to write a debug overlay so the trace can be eyeballed.
 """
 
 import os
+
+import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 from scipy import ndimage
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 
 IMG = "/home/bourdeet/Pictures/Screenshots/Screenshot from 2026-06-29 16-49-46.png"
 TARGET_W = 120.0  # scale longest extent to ~120 km
 
 
-def extract(path=IMG, n_points=199):
+def extract(
+    path: str = IMG, n_points: int = 199
+) -> tuple[np.ndarray, np.ndarray, tuple[np.ndarray, int, int, float]]:
+    """Extract the outline and the eye of the T-Rex from an image.
+
+    Selects the non-interactive `Agg` matplotlib backend.
+
+    Args:
+        path:
+          Path of the source image.
+        n_points:
+          Number of contour points, spaced evenly by arc length.
+
+    Returns:
+        Tuple of the contour as `(n_points, 2)` model coordinates in km, the eye as
+        a model coordinate `(x, y)`, and the image data `(rgb, height, width,
+        scale)` where `scale` is the km per pixel.
+    """
+    matplotlib.use("Agg")
     rgb = np.asarray(Image.open(path).convert("RGB")).astype(int)
     R, G, B = rgb[..., 0], rgb[..., 1], rgb[..., 2]
     H, W = R.shape
@@ -62,13 +79,22 @@ def extract(path=IMG, n_points=199):
 
     # to model coords: y up, scaled
     scale = TARGET_W / max(W, H)
-    to_xy = lambda px: np.column_stack([px[..., 0], H - px[..., 1]]) * scale
+
+    def to_xy(px: np.ndarray) -> np.ndarray:
+        return np.column_stack([px[..., 0], H - px[..., 1]]) * scale
+
     contour = to_xy(contour_px)
     eye = to_xy(np.array([eye_px]))[0]
     return contour, eye, (rgb, H, W, scale)
 
 
-def debug_overlay(out):
+def debug_overlay(out: str) -> None:
+    """Plot the traced contour and detected eye over the source image.
+
+    Args:
+        out:
+          Output image path.
+    """
     contour, eye, (rgb, H, W, scale) = extract()
     fig, ax = plt.subplots(figsize=(8, 8))
     ax.imshow(rgb)

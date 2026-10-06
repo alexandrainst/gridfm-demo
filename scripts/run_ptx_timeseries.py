@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Run a 30-day hourly pandapower time series on every PtX siting scenario.
+"""Run a 30-day hourly pandapower time series on every PtX siting scenario.
 
 For each scenario (P location s1..s6) the same 5-bus net is driven by the
 three profiles from make_profiles.py:
@@ -17,28 +16,27 @@ A combined summary.csv is written alongside.
 """
 
 import os
+import typing as t
 import warnings
 
 import numpy as np
 import pandas as pd
-
-warnings.filterwarnings("ignore")
-import pandapower as pp
-from pandapower.timeseries import DFData, OutputWriter
-from pandapower.timeseries.run_time_series import run_timeseries
-from pandapower.control import ConstControl
-
 from build_ptx_cases import (
-    SCENARIOS,
-    COMP_FRACTION,
-    COMP_SCENARIOS,
-    build_net,
     A_PD,
     B_PD,
+    COMP_FRACTION,
+    COMP_SCENARIOS,
     G_PG,
     P_ELYS_MW,
     P_SOLAR_MW,
+    SCENARIOS,
+    build_net,
 )
+from pandapower.control import ConstControl
+from pandapower.timeseries import DFData, OutputWriter
+from pandapower.timeseries.run_time_series import run_timeseries
+
+warnings.filterwarnings("ignore")
 
 LOG = [
     ("res_bus", "vm_pu"),
@@ -52,7 +50,13 @@ LOG = [
 ]
 
 
-def find_root():
+def find_root() -> str:
+    """Find the project root.
+
+    Returns:
+        Closest ancestor directory of this file containing `pyproject.toml`, or the
+        filesystem root if there is none.
+    """
     root = os.path.dirname(os.path.abspath(__file__))
     while root != os.path.dirname(root) and not os.path.exists(
         os.path.join(root, "pyproject.toml")
@@ -61,11 +65,31 @@ def find_root():
     return root
 
 
-def run_scenario(name, p_coord, prof, outdir):
+def run_scenario(
+    name: str, p_coord: tuple[float, float], prof: dict[str, np.ndarray], outdir: str
+) -> dict[str, t.Any]:
+    """Run the time series of one siting scenario and write its results.
+
+    Args:
+        name:
+          Scenario name.
+        p_coord:
+          Coordinate `(x, y)` of bus P in km.
+        prof:
+          Profiles keyed by `consumption`, `ptx` and `generator`.
+        outdir:
+          Output directory, created if missing.
+
+    Returns:
+        Summary of the scenario: `scenario`, `steps`, `diverged`, `vm_min`,
+        `vm_max`, `max_line_load`, `slack_min_mw` and `slack_max_mw`.
+    """
     cf = COMP_FRACTION if name in COMP_SCENARIOS else 0.0
     net, _, _, _ = build_net(p_coord, comp_fraction=cf)
 
-    idx = lambda tbl, nm: int(net[tbl].index[net[tbl].name == nm][0])
+    def idx(tbl: str, nm: str) -> int:
+        return int(net[tbl].index[net[tbl].name == nm][0])
+
     a, b, p = idx("load", "A"), idx("load", "B"), idx("load", "P")
     g = idx("gen", "G")
 
@@ -129,7 +153,8 @@ def run_scenario(name, p_coord, prof, outdir):
     )
 
 
-def main():
+def main() -> None:
+    """Run the time series for every scenario and write a summary CSV."""
     root = find_root()
     npz = np.load(os.path.join(root, "data", "profiles", "profiles_30day.npz"))
     prof = {k: npz[k] for k in ("consumption", "ptx", "generator")}

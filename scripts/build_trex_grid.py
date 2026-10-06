@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Fun demo: a 200-bus power network whose buses trace a T-Rex silhouette.
+"""Fun demo: a 200-bus power network whose buses trace a T-Rex silhouette.
 
   * 1   slack bus (external grid)
   * 20  PV generators distributed around the contour
@@ -13,22 +12,19 @@ chords (so the folds -- legs, jaw -- cross-connect into a mesh).  Solved with
 pandapower, exported to a standard MATPOWER .m, and plotted.
 """
 
-import math
 import os
+import typing as t
 import warnings
 
-import numpy as np
 import matplotlib
-
-matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import numpy as np
+import pandapower as pp
 from matplotlib.lines import Line2D
+from pandapower.converter.matpower import to_mpc
+from trex_contour import extract  # traces the real image silhouette + eye
 
 warnings.filterwarnings("ignore")
-import pandapower as pp
-from pandapower.converter.matpower import to_mpc
-
-from trex_contour import extract  # traces the real image silhouette + eye
 
 # ---------------------------------------------------------------- config -----
 N_TOTAL = 200
@@ -43,7 +39,13 @@ CHORD_MAX_KM = 14.0  # add a chord to nearest bus within this range
 RNG = np.random.default_rng(0)
 
 
-def build():
+def build() -> tuple[pp.pandapowerNet, dict[str, t.Any]]:
+    """Build and solve the T-Rex power network.
+
+    Returns:
+        Tuple of the pandapower net and an info dict describing the buses, roles,
+        edges and, if the power flow converged, the result summary.
+    """
     # --- bus coordinates: real image contour + detected eye ----------------
     contour, eye_xy, _ = extract(n_points=N_TOTAL - 1)
     coords = np.vstack([contour, eye_xy])  # eye is the last bus
@@ -189,7 +191,15 @@ STYLE = {
 }
 
 
-def plot(info, outpng):
+def plot(info: dict[str, t.Any], outpng: str) -> None:
+    """Plot the network by bus role and save it as an image.
+
+    Args:
+        info:
+          Info dict as returned by `build`.
+        outpng:
+          Output image path.
+    """
     coords, role, edges = info["coords"], info["role"], info["edges"]
     fig, ax = plt.subplots(figsize=(13, 11))
 
@@ -274,7 +284,9 @@ def plot(info, outpng):
     print("wrote", outpng)
 
 
-def main():
+def main() -> None:
+    """Build the T-Rex network, plot it and export it as a MATPOWER case."""
+    matplotlib.use("Agg")
     here = os.path.dirname(os.path.abspath(__file__))
     root = here
     while root != os.path.dirname(root) and not os.path.exists(
@@ -309,13 +321,10 @@ def main():
         )
 
     # export standard MATPOWER .m (reuse the to_mpc dict, write minimal text)
-    mpc = to_mpc(net)["mpc"]
     np.set_printoptions(suppress=True)
     plot(info, os.path.join(outdir, "trex_grid.png"))
     # also dump the mpc as .mat-free .m via savetxt-style for completeness
-    from pandapower.converter import to_mpc as _t
-
-    _t(net, filename=os.path.join(outdir, "case_trex.mat"))
+    to_mpc(net, filename=os.path.join(outdir, "case_trex.mat"))
     print("wrote", os.path.join(outdir, "case_trex.mat"))
 
 
