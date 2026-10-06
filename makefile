@@ -1,8 +1,7 @@
 # This ensures that we can call `make <target>` even if `<target>` exists as a file or
 # directory.
 .PHONY: help install install-dependencies install-pre-commit test check \
-	format-markdown tree flower-data flower-build flower-up flower-run flower-down \
-	flower-clean-data
+	format-markdown tree
 
 help:
 	@grep -E '^[0-9a-zA-Z_-]+:.*?## .*$$' makefile | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -33,32 +32,3 @@ format-markdown:
 
 tree:  ## Print directory tree
 	@tree -a --gitignore -I .git .
-
-FEDERATION ?= case14_2clients
-EXPERIMENT ?= fedavg
-FEDERATION_DIR := federations/$(FEDERATION)
-COMPOSE := docker compose -f $(FEDERATION_DIR)/compose.yml
-FEDERATION_CLIENT_DIRS := $(patsubst $(FEDERATION_DIR)/datakit_config/%.yaml,\
-	$(FEDERATION_DIR)/data/%,$(wildcard $(FEDERATION_DIR)/datakit_config/client_*.yaml))
-
-flower-data: $(FEDERATION_CLIENT_DIRS)
-
-$(FEDERATION_DIR)/data/client_%: $(FEDERATION_DIR)/datakit_config/client_%.yaml
-	@uv run python scripts/generate_data.py --config $<
-
-flower-build:  ## Build the Flower Docker images (serverapp + clientapp)
-	@$(COMPOSE) build
-
-flower-up: flower-data  ## Start the federation FEDERATION
-	@mkdir -p outputs
-	@$(COMPOSE) up -d --build
-
-flower-run:  ## Submit EXPERIMENT to the running federation
-	@uv run flwr run . local-deployment \
-		--run-config "experiment='$(EXPERIMENT)'" --stream
-
-flower-down:  ## Stop the federation FEDERATION
-	@$(COMPOSE) down
-
-flower-clean-data:  ## Wipe the generated client datasets of FEDERATION
-	@rm -rf $(FEDERATION_DIR)/data
