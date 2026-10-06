@@ -168,6 +168,11 @@ experiment = "fedavg"
 num-server-rounds = 3
 local-epochs = 1
 
+# Each client trains only on its own data, for as many epochs as a client trains in
+# FedAvg: `fedavg.num-server-rounds * fedavg.local-epochs`.
+[tool.flwr.app.config.local]
+local-epochs = 3
+
 [tool.flwr.federations]
 default = "local-deployment"
 

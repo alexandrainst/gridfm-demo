@@ -2,8 +2,9 @@
 
 from ..interface import Experiment
 from .fedavg import EXPERIMENT as FEDAVG
+from .local import EXPERIMENT as LOCAL
 
-EXPERIMENTS: dict[str, Experiment] = {"fedavg": FEDAVG}
+EXPERIMENTS: dict[str, Experiment] = {"fedavg": FEDAVG, "local": LOCAL}
 
 
 def get_experiment(name: str) -> Experiment:

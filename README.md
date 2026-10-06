@@ -56,12 +56,21 @@ and the ServerApp. It exits with the command to run if a client has no data:
 uv run gridfm up case14_2clients
 ```
 
-Run an experiment on the running federation and stream its logs. The run writes the
-final model, its metrics per round and its run config to
-`outputs/<experiment>/<run-id>/`. You can start several runs while the federation is up:
+Run an experiment on the running federation and stream its logs. The run writes its
+results to `outputs/<experiment>/<run-id>/`. You can start several runs while the
+federation is up:
 
 ```bash
 uv run gridfm run fedavg
+```
+
+To compare federated training with training on each client's own data only, also run the
+`local` experiment on the same federation. In the `metrics.json` of each run, the last
+round under `evaluate_clientapp` holds the validation loss on the clients' own data,
+averaged over clients:
+
+```bash
+uv run gridfm run local
 ```
 
 Stop the federation and remove its containers. The generated data and the outputs are
