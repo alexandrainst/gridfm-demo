@@ -70,9 +70,6 @@ confirmation:
 uv run gridfm down case14_2clients
 ```
 
-See [`federations/README.md`](federations/README.md) for more on the deployment and the
-run outputs.
-
 ## Development
 
 See [`docs/development.md`](docs/development.md) for an introduction to Flower, the

@@ -105,6 +105,13 @@ To make the experiment available:
    `pyproject.toml`. `flwr run` only accepts keys declared there.
 3. Run it with `uv run gridfm run <name>`.
 
+To change a run config value for a single run, call `flwr run` directly:
+
+```bash
+uv run flwr run . local-deployment \
+  --run-config "experiment='fedavg' fedavg.local-epochs=2" --stream
+```
+
 ## Adding a Federation
 
 A federation is a folder `federations/<name>/` with one datakit config per client and a
