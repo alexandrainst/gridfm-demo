@@ -18,8 +18,14 @@ dependencies = [
     "matplotlib>=3.11.0",
     "pandapower>=3.5.4",
     "numpy>=2.4.6",
-    "flwr[simulation]==1.23.0",
     "typer>=0.12.5",
+    "flwr==1.23.0",
+    "torch>=2.14.1",
+    "lightning>=2.6.6",
+    "pyyaml>=6.0.3",
+    "pandas>=2.3.3,<3",
+    "scipy>=1.18.1",
+    "pillow>=12.3.0",
 ]
 
 [project.scripts]
