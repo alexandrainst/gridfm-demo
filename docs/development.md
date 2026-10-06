@@ -129,6 +129,9 @@ Docker Compose file. `federations/case14_2clients/` is an example with two clien
       Several networks and their scenario counts are comma-separated.
   - a ClientApp built from `../../build/client` that connects to that SuperNode and
       mounts `./data/client_<i>` at `/data/client_<i>`.
+- `compose.yml` must not set a top-level `name:`. The Compose project is then named
+  after the folder, which keeps the containers of different federations apart and lets
+  `gridfm` tell whether a federation is up.
 
 Start the federation with `uv run gridfm up <name>`. FedAvg waits for at least two
 clients, so a federation with one client never starts a FedAvg run.
