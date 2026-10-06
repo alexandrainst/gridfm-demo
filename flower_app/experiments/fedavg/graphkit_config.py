@@ -1,17 +1,16 @@
-"""Graphkit training config shared by ``client_app`` and ``server_app``.
+"""Graphkit task, data, model, optimizer and training configuration of FedAvg."""
 
-Kept as a Python literal (not YAML) because Flower's FAB build only bundles
-``*.py``, ``*.toml`` and ``*.md`` files.
-"""
+import typing as t
 
-GRAPHKIT_CONFIG: dict = {
+# A Python literal rather than YAML because Flower's app bundle only includes `*.py`,
+# `*.toml` and `*.md` files.
+# `data.networks` and `data.scenarios` describe the client's dataset and are set from
+# its `ClientDataset`.
+GRAPHKIT_CONFIG: dict[str, t.Any] = {
     "task": {"task_name": "PowerFlow"},
     "data": {
-        "baseMVA": 100,
         "mask_value": 0.0,
         "normalization": "HeteroDataMVANormalizer",
-        "networks": ["case14_ieee"],
-        "scenarios": [40],
         "test_ratio": 0.1,
         "val_ratio": 0.1,
         "workers": 0,

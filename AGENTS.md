@@ -16,11 +16,20 @@ deterministic solutions from pandapower.
 
 - Keep modules focused and cohesive
 - Prefer many small modules over few large ones
-- All code modules are in the `src/<project_name>` directory. These are not executed but
-  are imported by the scripts
+- The Flower App is the `flower_app` package at the repo root, not in `src/`. Flower
+  ships the project folder as is and imports the package from its root. The package root
+  holds only the Flower driver; experiment code lives in the experiment packages. Code
+  that does not run in the federation lives in `scripts/`
+- Flower experiments are packages in `flower_app/experiments/<name>/`, registered in
+  `flower_app/experiments/__init__.py`. Their run config defaults are in
+  `[tool.flwr.app.config.<name>]` of `pyproject.toml`. See `federations/README.md` for
+  adding one
 - All scripts are in the `scripts` directory. These are executed with `uv run`
 - All tests are in the `tests/` directory
-- Configs are sometimes available and if so, they are in the `config/` directory
+- Federations are folders in `federations/<name>/`, holding the datakit configs of the
+  clients in `datakit_config/`, their generated data in `data/` and the Docker Compose
+  file `compose.yml`. Example configs are in `docs/examples/`
+- The Dockerfiles of the Flower images are in the `build/` directory
 - There will always be a `pyproject.toml` file in the root directory
 - Use `uv add <package>` to add packages to the project, do not just add them manually
   to `pyproject.toml`. Add development dependencies with `uv add --group=dev <package>`
@@ -31,7 +40,8 @@ deterministic solutions from pandapower.
 #### Quality Checkers
 
 - Run `make check` to run formatters, linters and type checkers.
-- Run tests with `make test`.
+- Run tests with `make test`. It also updates the coverage badge in `README.md`.
+- Run `make format-markdown` to format Markdown files.
 
 #### General Code Conventions
 
@@ -48,7 +58,7 @@ deterministic solutions from pandapower.
 - When we import things in modules from other modules in the package, we always do it
   using relative imports:
 
-    ```python title="src/mypackage/module.py"
+    ```python title="mypackage/module.py"
     from .another_module import some_function
     ```
 

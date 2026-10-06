@@ -89,44 +89,37 @@ make format-markdown
 
 ## Repository Content
 
-The project is structured intot he following subcomponents:
+- `flower_app/` is the Flower App: the code Flower ships to the server and clients.
+  Flower ships the project folder to the federation as is, so the package sits at the
+  repo root rather than in `src/`.
+  - `client_app.py` and `server_app.py` are the Flower ClientApp and ServerApp. They
+      run the experiment named in the run config.
+  - `interface.py` defines the entry points an experiment provides. `paths.py` holds
+      the fixed container paths, and `node_config.py` reads each client's dataset from
+      its SuperNode's node config.
+  - `experiments/` holds one package per Flower experiment. `experiments/fedavg/`
+      trains a [gridfm-graphkit](https://github.com/gridfm/gridfm-graphkit) model with
+      FedAvg. The package holds only the code that Flower ships to the server and
+      clients.
+- `federations/` holds one folder per federation: the datakit configs of its clients
+  (`datakit_config/`), their generated data (`data/`) and its Docker Compose file
+  (`compose.yml`).
+- `scripts/` holds the entry points run with `uv run`, such as dataset generation with
+  [gridfm-datakit](https://github.com/gridfm/gridfm-datakit).
+- `build/` holds the Dockerfiles of the Flower ServerApp and ClientApp images.
+- `docs/` holds background material and example configs.
 
-- `data_generation` handles the creation of synthetic grid data for training gridFM and
-  test its performance. It relies on
-  [gridfm-datakit](https://github.com/gridfm/gridfm-datakit) for generating the graph
-  objects.
-- `model_training` handles the centralized training process of gridFM and is based on
-  [gridFM-graphkit](https://github.com/gridfm/gridfm-graphkit)
-- `federated_learning` is an alternative way of training gridFM, using a federated
-  learning framework called [APPFL](https://github.com/APPFL/APPFL). It adapts the
-  graphkit training tools for use within the federated learning framework.
-- `use_cases` includes various analyses of the trained model performance, showing how
-  the model's accuracy and latency compares with standard power flow solvers. It also
-  includes an example use of the final model within an optimisation task inspired by
-  real challenges faced by TSO's.
+## Federated Learning
 
-## Federated Learning Deployment
-
-The `src/federated_learning` subfolder contains code to locally deploy the federated
-learning framework [Flower](https://flower.ai/).
-
-### Local Deployment
-
-Deploy the Flower framework via the make targets:
-
-```bash
-make flower-up
-make flower-down
-```
-
-## Running an experiment
-
-Run an flower experiment with via the make target:
+[Flower](https://flower.ai/) trains the model in a federated setting. Generate a
+dataset, start the federation, run an experiment and stop the federation with:
 
 ```bash
-make flower-run
+make flower-data FEDERATION=case14_2clients
+make flower-up FEDERATION=case14_2clients
+make flower-run EXPERIMENT=fedavg
+make flower-down FEDERATION=case14_2clients
 ```
 
-We refer to the documentation at
-[`src/federated_learning/README.md`](src/federated_learning/README.md) for further
-information.
+The values shown are the defaults. See [`federations/README.md`](federations/README.md)
+for the deployment, the run outputs and how to add an experiment.
