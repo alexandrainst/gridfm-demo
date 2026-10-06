@@ -23,7 +23,7 @@ services:
       - --isolation
       - process
       - --node-config
-      - "partition-id=0 num-partitions=2 data-dir='/data/client_0' networks='case14_ieee' scenarios='40'"
+      - "data-dir='/data/client_0' networks='case14_ieee' scenarios='40'"
     networks:
       - flwr-network
     depends_on:
@@ -40,7 +40,7 @@ services:
       - --isolation
       - process
       - --node-config
-      - "partition-id=1 num-partitions=2 data-dir='/data/client_1' networks='case14_ieee' scenarios='40'"
+      - "data-dir='/data/client_1' networks='case14_ieee' scenarios='40'"
     networks:
       - flwr-network
     depends_on:
