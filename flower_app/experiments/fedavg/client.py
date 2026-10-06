@@ -1,5 +1,7 @@
 """Client side of the FedAvg experiment."""
 
+from collections import OrderedDict
+
 from flwr.app import ArrayRecord, Context, Message, MetricRecord, RecordDict
 
 from ...interface import ClientDataset, ClientPaths
@@ -27,19 +29,27 @@ def train(
     Returns:
         Reply with the updated model under `"arrays"` and `"num-examples"` under
         `"metrics"`.
+
+    Raises:
+        TypeError:
+          If `"local-epochs"` is not an integer.
     """
-    local_epochs = int(msg.content["config"]["local-epochs"])
+    local_epochs = msg.content.config_records["config"]["local-epochs"]
+    if not isinstance(local_epochs, int):
+        raise TypeError(f"'local-epochs' must be an integer, got {local_epochs!r}.")
     task, data_module = build_task_and_datamodule(
         graphkit_config=GRAPHKIT_CONFIG, dataset=dataset
     )
-    task.load_state_dict(msg.content["arrays"].to_torch_state_dict())
+    task.load_state_dict(msg.content.array_records["arrays"].to_torch_state_dict())
 
     trainer = make_trainer(max_epochs=local_epochs, log_dir=paths.log_dir)
     trainer.fit(model=task, datamodule=data_module)
 
     reply = RecordDict(
         {
-            "arrays": ArrayRecord.from_torch_state_dict(task.state_dict()),
+            # Lightning annotates `state_dict()` as a `dict`, while Flower requires the
+            # `OrderedDict` it returns at runtime.
+            "arrays": ArrayRecord.from_torch_state_dict(OrderedDict(task.state_dict())),
             "metrics": MetricRecord(
                 {"num-examples": len(data_module.train_dataset_multi)}
             ),
@@ -69,7 +79,7 @@ def evaluate(
     task, data_module = build_task_and_datamodule(
         graphkit_config=GRAPHKIT_CONFIG, dataset=dataset
     )
-    task.load_state_dict(msg.content["arrays"].to_torch_state_dict())
+    task.load_state_dict(msg.content.array_records["arrays"].to_torch_state_dict())
 
     trainer = make_trainer(max_epochs=1, log_dir=paths.log_dir)
     results = trainer.validate(model=task, datamodule=data_module, verbose=False)
