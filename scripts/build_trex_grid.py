@@ -313,9 +313,7 @@ def main():
     np.set_printoptions(suppress=True)
     plot(info, os.path.join(outdir, "trex_grid.png"))
     # also dump the mpc as .mat-free .m via savetxt-style for completeness
-    from pandapower.converter import to_mpc as _t
-
-    _t(net, filename=os.path.join(outdir, "case_trex.mat"))
+    to_mpc(net, filename=os.path.join(outdir, "case_trex.mat"))
     print("wrote", os.path.join(outdir, "case_trex.mat"))
 
 
