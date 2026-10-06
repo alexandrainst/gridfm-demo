@@ -1099,9 +1099,15 @@ dependencies = [
     { name = "flwr", marker = "sys_platform == 'linux'" },
     { name = "gridfm-datakit", marker = "sys_platform == 'linux'" },
     { name = "gridfm-graphkit", marker = "sys_platform == 'linux'" },
+    { name = "lightning", marker = "sys_platform == 'linux'" },
     { name = "matplotlib", marker = "sys_platform == 'linux'" },
     { name = "numpy", marker = "sys_platform == 'linux'" },
     { name = "pandapower", marker = "sys_platform == 'linux'" },
+    { name = "pandas", marker = "sys_platform == 'linux'" },
+    { name = "pillow", marker = "sys_platform == 'linux'" },
+    { name = "pyyaml", marker = "sys_platform == 'linux'" },
+    { name = "scipy", marker = "sys_platform == 'linux'" },
+    { name = "torch", marker = "sys_platform == 'linux'" },
     { name = "typer", marker = "sys_platform == 'linux'" },
 ]
 
@@ -1122,9 +1128,15 @@ requires-dist = [
     { name = "flwr", specifier = "==1.23.0" },
     { name = "gridfm-datakit", git = "https://github.com/alexandrainst/gridfm-datakit?rev=a3fc228" },
     { name = "gridfm-graphkit", git = "https://github.com/alexandrainst/gridfm-graphkit?rev=b3d663b" },
+    { name = "lightning", specifier = ">=2.6.6" },
     { name = "matplotlib", specifier = ">=3.11.0" },
     { name = "numpy", specifier = ">=2.4.6" },
     { name = "pandapower", specifier = ">=3.5.4" },
+    { name = "pandas", specifier = ">=2.3.3,<3" },
+    { name = "pillow", specifier = ">=12.3.0" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
+    { name = "scipy", specifier = ">=1.18.1" },
+    { name = "torch", specifier = ">=2.14.1" },
     { name = "typer", specifier = ">=0.12.5" },
 ]
 
