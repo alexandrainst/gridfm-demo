@@ -107,7 +107,7 @@ addopts = [
   '--durations=10',
   '--color=yes',
   '--doctest-modules',
-  '--cov=src/gridfm_demo',
+  '--cov=gridfm_demo',
 ]
 xfail_strict = true
 filterwarnings = [
@@ -122,7 +122,7 @@ filterwarnings = [
 log_cli_level = "info"
 testpaths = [
   "tests",
-  "src/gridfm_demo",
+  "gridfm_demo",
 ]
 
 [tool.uv]
