@@ -35,15 +35,15 @@ topologies.
 
 ## Usage
 
-Every make target takes a federation from `federations/` with the parameter `FEDERATION`
-or an experiment from `flower_app/experiments/` with the parameter `EXPERIMENT`. In the
-examples below, we use the values `FEDERATION=case14_2clients` and `EXPERIMENT=fedavg`.
+Run the demo with the `gridfm` command. Each command takes a federation from
+`federations/` or an experiment from `flower_app/experiments/` as its argument, and asks
+for one if it is left out. `uv run gridfm --help` lists all commands.
 
 Generate the synthetic data of each client in the federation. The data is written to
 `federations/case14_2clients/data/`, and clients that already have data are skipped:
 
 ```bash
-make flower-data FEDERATION=case14_2clients
+uv run gridfm data case14_2clients
 ```
 
 Start the federation in the background. This generates any missing data, builds the
@@ -51,7 +51,7 @@ Docker images, which is slow only the first time, and starts the SuperLink, one
 SuperNode and ClientApp per client, and the ServerApp:
 
 ```bash
-make flower-up FEDERATION=case14_2clients
+uv run gridfm up case14_2clients
 ```
 
 Run an experiment on the running federation and stream its logs. The run writes the
@@ -59,14 +59,15 @@ final model, its metrics per round and its run config to
 `outputs/<experiment>/<run-id>/`. You can start several runs while the federation is up:
 
 ```bash
-make flower-run EXPERIMENT=fedavg
+uv run gridfm run fedavg
 ```
 
 Stop the federation and remove its containers. The generated data and the outputs are
-kept:
+kept, and `uv run gridfm clean case14_2clients` deletes the data after asking for
+confirmation:
 
 ```bash
-make flower-down FEDERATION=case14_2clients
+uv run gridfm down case14_2clients
 ```
 
 See [`federations/README.md`](federations/README.md) for more on the deployment and the

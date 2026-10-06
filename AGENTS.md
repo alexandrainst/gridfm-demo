@@ -12,8 +12,9 @@ Demonstration of how federated learning can train a foundation model for the pow
   `flower_app/experiments/__init__.py`. They import nothing from `flower_app/` except
   `interface.py`, and their configuration is Python code
 - Run config defaults are in `[tool.flwr.app.config.<name>]` of `pyproject.toml`
-- Federations are in `federations/<name>/`, Dockerfiles in `build/`, scripts in
-  `scripts/`, tests in `tests/` and example configs in `docs/examples/`
+- The `gridfm` command-line interface is the `gridfm_cli` package. Federations are in
+  `federations/<name>/`, Dockerfiles in `build/`, scripts in `scripts/`, tests in
+  `tests/` and example configs in `docs/examples/`
 - Tests cannot import the experiments, since `torch_scatter` is only installed in the
   Docker images
 

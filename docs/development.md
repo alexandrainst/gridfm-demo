@@ -45,14 +45,15 @@ experiments and federations. An experiment is the model together with the way it
 trained. It contains the code that the ServerApp and the ClientApps run, from the
 strategy on the server to the local training and evaluation on the clients, but it makes
 no assumptions about the data it trains on. Each experiment is a package in
-`flower_app/experiments/` and is chosen with the parameter `EXPERIMENT`.
+`flower_app/experiments/` and is chosen by name in `uv run gridfm run`.
 
 A federation describes where the training happens. It consists of the clients, the data
 each of them contains and the Flower infrastructure components that connect them to the
 server. Flower uses the word for the SuperLink and its SuperNodes only, so a federation
 in this project is a wider idea that also includes the data. Each federation is a folder
-in `federations/` and is chosen with `FEDERATION`. Because experiments and federations
-are independent of each other, a run can train any experiment on any federation.
+in `federations/` and is chosen by name in the other `gridfm` commands. Because
+experiments and federations are independent of each other, a run can train any
+experiment on any federation.
 
 ## Project Components
 
@@ -71,8 +72,10 @@ are independent of each other, a run can train any experiment on any federation.
   install the dependencies, since the code arrives with each run in the FAB.
 - `pyproject.toml` contains the run config defaults in `[tool.flwr.app.config]`, such as
   the number of rounds.
-- `scripts/` contains the data generation script, and `docs/` background material and
-  example configs.
+- `gridfm_cli/` contains the `gridfm` command-line interface. It generates the data,
+  runs `docker compose` with a federation's `compose.yml` and submits experiments with
+  `flwr run`.
+- `docs/` contains background material and example configs.
 
 ## Adding an Experiment
 
@@ -93,14 +96,14 @@ The experiment imports nothing from `flower_app/` except `interface.py`. Its
 configuration is Python code, because the FAB only contains `*.py`, `*.toml` and `*.md`
 files. Any library it needs beyond those in `build/client/pyproject.toml` and
 `build/server/pyproject.toml` must be added there, and the images rebuilt with
-`make flower-build`.
+`uv run gridfm build <federation>`.
 
 To make the experiment available:
 
 1. Add it to `EXPERIMENTS` in `flower_app/experiments/__init__.py` under `<name>`.
 2. Declare its run config keys with defaults in `[tool.flwr.app.config.<name>]` of
    `pyproject.toml`. `flwr run` only accepts keys declared there.
-3. Run it with `make flower-run EXPERIMENT=<name>`.
+3. Run it with `uv run gridfm run <name>`.
 
 ## Adding a Federation
 
@@ -110,8 +113,8 @@ Docker Compose file. `federations/case14_2clients/` is an example with two clien
 - `datakit_config/client_<i>.yaml` is the
   [gridfm-datakit](https://github.com/gridfm/gridfm-datakit) config of client `<i>`,
   counting from 0. `network.name` selects the grid, and `settings.data_dir` must be
-  `federations/<name>/data/client_<i>`. `make flower-data FEDERATION=<name>` generates
-  the data of every client into `data/`.
+  `federations/<name>/data/client_<i>`. `uv run gridfm data <name>` generates the data
+  of every client into `data/`.
 - `compose.yml` starts one `superlink`, one `serverapp` built from `../../build/server`
   with `../../outputs` mounted at `/outputs`, and two services per client:
   - a SuperNode with its own ClientAppIO port and the node config
@@ -120,8 +123,8 @@ Docker Compose file. `federations/case14_2clients/` is an example with two clien
   - a ClientApp built from `../../build/client` that connects to that SuperNode and
       mounts `./data/client_<i>` at `/data/client_<i>`.
 
-Start the federation with `make flower-up FEDERATION=<name>`. FedAvg waits for at least
-two clients, so a federation with one client never starts a FedAvg run.
+Start the federation with `uv run gridfm up <name>`. FedAvg waits for at least two
+clients, so a federation with one client never starts a FedAvg run.
 
 ## Tools
 

@@ -8,21 +8,19 @@ the clients so that they cooperatively train a
 
 ## Quickstart
 
-The make targets take two variables:
-
-- `FEDERATION`: a folder in `federations/`. Default `case14_2clients`.
-- `EXPERIMENT`: a folder in `flower_app/experiments/`. Default `fedavg`.
+The `gridfm` commands take a federation, a folder in `federations/`, or an experiment, a
+package in `flower_app/experiments/`. A command asks for the name if it is left out.
 
 ### Generate Synthetic Dataset
 
-Generate one dataset per client under `federations/<FEDERATION>/data/client_<i>/` with:
+Generate one dataset per client under `federations/<federation>/data/client_<i>/` with:
 
 ```bash
-make flower-data FEDERATION=case14_2clients
+uv run gridfm data case14_2clients
 ```
 
 Each client has its own datakit config in
-`federations/<FEDERATION>/datakit_config/client_<i>.yaml`. The two clients of
+`federations/<federation>/datakit_config/client_<i>.yaml`. The two clients of
 `case14_2clients` differ only in `settings.seed`.
 
 ### Deploy Federated Learning Framework
@@ -30,28 +28,28 @@ Each client has its own datakit config in
 Deploy the federated learning framework with:
 
 ```bash
-make flower-up FEDERATION=case14_2clients
+uv run gridfm up case14_2clients
 ```
 
 This command generates the dataset if needed, mounts each client's data directory into
 its `clientapp` container and the host's `outputs/` into the `serverapp` container, then
 brings up the full Flower stack (`SuperLink`, one `SuperNode` and `ClientApp` per
 client, one `ServerApp`). See [Architecture](#architecture) for the components of the
-Flower stack. The compose file is `federations/<FEDERATION>/compose.yml`, and the images
+Flower stack. The compose file is `federations/<federation>/compose.yml`, and the images
 are built from `build/client/` and `build/server/`.
 
-The dataset is fixed when the federation starts. Restart it with `make flower-down` and
-`make flower-up` to switch federations.
+The dataset is fixed when the federation starts. Restart it with `uv run gridfm down`
+and `uv run gridfm up` to switch federations.
 
 ### Run Experiment
 
 Run an experiment with:
 
 ```bash
-make flower-run EXPERIMENT=fedavg
+uv run gridfm run fedavg
 ```
 
-This command runs `flwr run` with `--run-config "experiment='<EXPERIMENT>'"`. The other
+This command runs `flwr run` with `--run-config "experiment='<experiment>'"`. The other
 run config values are the defaults in `[tool.flwr.app.config]` of
 [`pyproject.toml`](../pyproject.toml), such as `fedavg.num-server-rounds`. Change them
 there, or override one for a single run with:
@@ -74,7 +72,7 @@ The `ServerApp` writes each run to `outputs/<experiment>/<run-id>/`:
 Remove the deployed Flower framework with:
 
 ```bash
-make flower-down FEDERATION=case14_2clients
+uv run gridfm down case14_2clients
 ```
 
 This command will remove the running containers.
@@ -82,10 +80,11 @@ This command will remove the running containers.
 Remove a generated dataset with:
 
 ```bash
-make flower-clean-data FEDERATION=case14_2clients
+uv run gridfm clean case14_2clients
 ```
 
-This command will remove the folder `federations/<FEDERATION>/data/`.
+This command asks for confirmation and then removes the folder
+`federations/<federation>/data/`. Pass `--yes` to skip the question.
 
 ## Experiments
 
@@ -134,7 +133,8 @@ as in `networks='case14_ieee,case30_ieee' scenarios='40,40'`.
    `supernode-1` and `clientapp-1`, and set `networks` and `scenarios` to match the
    dataset.
 5. If it needs new dependencies, add them to `build/client/pyproject.toml` and
-   `build/server/pyproject.toml` and rebuild the images with `make flower-build`.
+   `build/server/pyproject.toml` and rebuild the images with
+   `uv run gridfm build <federation>`.
 
 ## Architecture
 
@@ -165,7 +165,7 @@ and mirrors a production deployment.
 
 ### Run Lifecycle
 
-Submitting `make flower-run EXPERIMENT=fedavg`:
+Submitting `uv run gridfm run fedavg`:
 
 - The `flwr` CLI reads the `[tool.flwr.*]` sections of the root `pyproject.toml` and the
   `--run-config` overrides, here `experiment='fedavg'`.
