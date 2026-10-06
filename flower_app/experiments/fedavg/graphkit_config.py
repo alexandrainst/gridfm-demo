@@ -36,15 +36,10 @@ GRAPHKIT_CONFIG: dict[str, t.Any] = {
     },
     "training": {
         "batch_size": 4,
-        "epochs": 1,
         "loss_weights": [1.0],
         "losses": ["MaskedBusMSE"],
         "loss_args": [{}],
-        "accelerator": "cpu",
-        "devices": 1,
-        "strategy": "auto",
     },
     "seed": 0,
     "verbose": False,
-    "callbacks": {"patience": 100, "tol": 0},
 }
