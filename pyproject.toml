@@ -1,7 +1,7 @@
 [project]
 name = "gridfm_demo"
 version = "0.0.0"
-description = "Demo case bencharking gridFM-derived power flow solutions with state-of-the-art deterministic solutions from pandapower."
+description = "Demonstration of how federated learning can train a foundation model for the power grid."
 readme = "README.md"
 authors = [
   {name = "Étienne Bourbeau", email = "27770178+bourdeet@users.noreply.github.com"},
@@ -22,11 +22,11 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/alexandrainst/gridfm_demo"
-Issues = "https://github.com/alexandrainst/gridfm_demo/issues"
+Repository = "https://github.com/alexandrainst/gridfm-demo"
+Issues = "https://github.com/alexandrainst/gridfm-demo/issues"
 
 [project.license]
-text = "Proprietary"
+text = "MIT"
 
 [dependency-groups]
 dev = [
