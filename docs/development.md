@@ -121,7 +121,7 @@ Docker Compose file. `federations/case14_2clients/` is an example with two clien
   [gridfm-datakit](https://github.com/gridfm/gridfm-datakit) config of client `<i>`,
   counting from 0. `network.name` selects the grid, and `settings.data_dir` must be
   `federations/<name>/data/client_<i>`. `uv run gridfm data <name>` generates the data
-  of every client into `data/`.
+  of every client into `data/`, which `uv run gridfm up <name>` requires.
 - `compose.yml` starts one `superlink`, one `serverapp` built from `../../build/server`
   with `../../outputs` mounted at `/outputs`, and two services per client:
   - a SuperNode with its own ClientAppIO port and the node config
