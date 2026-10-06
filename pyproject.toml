@@ -120,9 +120,10 @@ filterwarnings = [
   "ignore::FutureWarning",
 ]
 log_cli_level = "info"
+# Not `gridfm_demo`: collecting its doctests imports gridfm-graphkit, which needs
+# `torch_scatter` (installed only in the Flower images).
 testpaths = [
   "tests",
-  "gridfm_demo",
 ]
 
 [tool.uv]
@@ -144,12 +145,17 @@ build-backend = "hatchling.build"
 publisher = "alexandra"
 
 [tool.flwr.app.components]
-# Flower's FAB extractor puts the archive root on sys.path but does not
-# strip src/ (no src-layout support), so the module path includes `src.`.
-serverapp = "src.federated_learning.server_app:app"
-clientapp = "src.federated_learning.client_app:app"
+serverapp = "gridfm_demo.server_app:app"
+clientapp = "gridfm_demo.client_app:app"
 
+# Defaults of every run config key. `flwr run --run-config` only overrides keys
+# declared here, so a new experiment's keys must be added with a default. Each
+# experiment's keys are in a table named after it, which Flower flattens to
+# `<experiment>.<key>`.
 [tool.flwr.app.config]
+experiment = "fedavg"
+
+[tool.flwr.app.config.fedavg]
 num-server-rounds = 3
 local-epochs = 1
 

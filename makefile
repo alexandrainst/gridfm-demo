@@ -35,6 +35,7 @@ tree:  ## Print directory tree
 	@tree -a --gitignore -I .git .
 
 FEDERATION ?= case14_2clients
+EXPERIMENT ?= fedavg
 FEDERATION_DIR := federations/$(FEDERATION)
 COMPOSE := docker compose -f $(FEDERATION_DIR)/compose.yml
 FEDERATION_CLIENT_DIRS := $(patsubst $(FEDERATION_DIR)/datakit_config/%.yaml,\
@@ -49,10 +50,12 @@ flower-build:  ## Build the Flower Docker images (serverapp + clientapp)
 	@$(COMPOSE) build
 
 flower-up: flower-data  ## Start the federation FEDERATION
+	@mkdir -p outputs
 	@$(COMPOSE) up -d --build
 
-flower-run:  ## Submit the experiment to the running federation
-	@uv run flwr run . local-deployment --stream
+flower-run:  ## Submit EXPERIMENT to the running federation
+	@uv run flwr run . local-deployment \
+		--run-config "experiment='$(EXPERIMENT)'" --stream
 
 flower-down:  ## Stop the federation FEDERATION
 	@$(COMPOSE) down
