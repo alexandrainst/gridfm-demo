@@ -48,9 +48,9 @@ Generate the synthetic data of each client in the federation. The data is writte
 uv run gridfm data case14_2clients
 ```
 
-Start the federation in the background. This generates any missing data, builds the
-Docker images, which is slow only the first time, and starts the SuperLink, one
-SuperNode and ClientApp per client, and the ServerApp:
+Start the federation in the background. This builds the Docker images, which is slow
+only the first time, and starts the SuperLink, one SuperNode and ClientApp per client,
+and the ServerApp. It exits with the command to run if a client has no data:
 
 ```bash
 uv run gridfm up case14_2clients

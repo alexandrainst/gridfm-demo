@@ -7,9 +7,11 @@ import typer
 
 from .choices import choose_experiment, choose_federation
 from .compose import compose
-from .data import delete_data, generate_data
+from .data import clients_without_data, delete_data, generate_data
 from .flower import run_experiment
 from .paths import OUTPUTS_DIR
+
+logger = logging.getLogger(__name__)
 
 app = typer.Typer(
     help="Run federated learning experiments on local Flower federations.",
@@ -68,18 +70,27 @@ def build(federation: FederationArgument = None) -> None:
     compose(federation=choose_federation(federation=federation), args=["build"])
 
 
-@app.command(
-    help="Start a federation in the background, generating any missing data first."
-)
+@app.command(help="Start a federation in the background.")
 def up(federation: FederationArgument = None) -> None:
-    """Start a federation in the background, generating any missing data first.
+    """Start a federation in the background.
 
     Args:
         federation:
           Name of the federation, or `None` to ask the user.
+
+    Raises:
+        typer.Exit:
+          With code 1 if a client of the federation has no generated data. The
+          clients and the command that generates their data are logged.
     """
     chosen = choose_federation(federation=federation)
-    generate_data(federation=chosen, force=False)
+    missing = clients_without_data(federation=chosen)
+    if missing:
+        logger.error(
+            f"The clients {', '.join(missing)} of {chosen} have no data. Generate it "
+            f"with:\n\n    uv run gridfm data {chosen}\n"
+        )
+        raise typer.Exit(code=1)
     # Docker would create the mounted folder as root if it did not exist.
     OUTPUTS_DIR.mkdir(exist_ok=True)
     compose(federation=chosen, args=["up", "-d", "--build"])
