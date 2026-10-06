@@ -94,6 +94,7 @@ multirun/
 # Data
 data/*
 !data/.gitkeep
+federations/*/data/
 
 # Models
 models/*

@@ -28,28 +28,34 @@ check:  ## Lint, format, and type-check the code
 
 format-markdown:
 	## markdownlint-cli2 does not support wrapping lines at 88 characters, so we use Prettier to wrap lines at 88 characters and then use markdownlint-cli2 to fix any remaining issues.
-	prettier --write --prose-wrap=always --print-width=88 *.md docs/**/*.md src/federated_learning/*.md
-	markdownlint-cli2 --fix *.md docs/**/*.md src/federated_learning/*.md
+	prettier --write --prose-wrap=always --print-width=88 *.md docs/**/*.md federations/*.md
+	markdownlint-cli2 --fix *.md docs/**/*.md federations/*.md
 
 tree:  ## Print directory tree
 	@tree -a --gitignore -I .git .
 
-flower-data: data/federated_learning/client_0/case14_ieee/raw/bus_data.parquet data/federated_learning/client_1/case14_ieee/raw/bus_data.parquet
+FEDERATION ?= case14_2clients
+FEDERATION_DIR := federations/$(FEDERATION)
+COMPOSE := docker compose -f $(FEDERATION_DIR)/compose.yml
+FEDERATION_CLIENT_DIRS := $(patsubst $(FEDERATION_DIR)/datakit_config/%.yaml,\
+	$(FEDERATION_DIR)/data/%,$(wildcard $(FEDERATION_DIR)/datakit_config/client_*.yaml))
 
-data/federated_learning/client_%/case14_ieee/raw/bus_data.parquet: src/federated_learning/config/datakit_client_%.yaml
-	@uv run python src/federated_learning/scripts/generate_client_data.py --config $<
+flower-data: $(FEDERATION_CLIENT_DIRS)
+
+$(FEDERATION_DIR)/data/client_%: $(FEDERATION_DIR)/datakit_config/client_%.yaml
+	@uv run python scripts/generate_data.py --config $<
 
 flower-build:  ## Build the Flower Docker images (serverapp + clientapp)
-	@docker compose -f src/federated_learning/docker-compose.yml build
+	@$(COMPOSE) build
 
-flower-up: flower-data  ## Start the local Flower federation (SuperLink + 2 SuperNodes + apps)
-	@docker compose -f src/federated_learning/docker-compose.yml up -d --build
+flower-up: flower-data  ## Start the federation FEDERATION
+	@$(COMPOSE) up -d --build
 
 flower-run:  ## Submit the experiment to the running federation
 	@uv run flwr run . local-deployment --stream
 
-flower-down:  ## Stop the local Flower federation
-	@docker compose -f src/federated_learning/docker-compose.yml down
+flower-down:  ## Stop the federation FEDERATION
+	@$(COMPOSE) down
 
-flower-clean-data:  ## Wipe generated client datasets
-	@rm -rf data/federated_learning
+flower-clean-data:  ## Wipe the generated client datasets of FEDERATION
+	@rm -rf $(FEDERATION_DIR)/data

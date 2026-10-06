@@ -30,7 +30,7 @@ admittance_perturbation:
 
 settings:
   num_processes: 1
-  data_dir: data/federated_learning/client_1
+  data_dir: federations/case14_2clients/data/client_1
   large_chunk_size: 10
   no_stats: false
   overwrite: true

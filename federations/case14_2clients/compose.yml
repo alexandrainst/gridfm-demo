@@ -49,7 +49,7 @@ services:
   serverapp:
     image: gridfm-flower-serverapp:1.23.0
     build:
-      context: images/server
+      context: ../../build/server
     command:
       - --insecure
       - --plugin-type
@@ -64,7 +64,7 @@ services:
   clientapp-1:
     image: gridfm-flower-clientapp:1.23.0
     build:
-      context: images/client
+      context: ../../build/client
     command:
       - --insecure
       - --plugin-type
@@ -72,7 +72,7 @@ services:
       - --appio-api-address
       - supernode-1:9094
     volumes:
-      - ../../data/federated_learning/client_0:/data/client_0
+      - ./data/client_0:/data/client_0
     networks:
       - flwr-network
     depends_on:
@@ -88,7 +88,7 @@ services:
       - --appio-api-address
       - supernode-2:9095
     volumes:
-      - ../../data/federated_learning/client_1:/data/client_1
+      - ./data/client_1:/data/client_1
     networks:
       - flwr-network
     depends_on:
