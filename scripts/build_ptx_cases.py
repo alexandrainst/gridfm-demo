@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""
-Generate standard MATPOWER (.m) case files for the Danish PtX siting demo,
-using pandapower as the single source of truth.
+"""Generate standard MATPOWER (.m) case files for the Danish PtX siting demo.
+
+Uses pandapower as the single source of truth.
 
 Workflow per scenario:
     1. build a pandapower `net` from physical inputs (km, Ohm/km, MW, kV)
@@ -21,15 +21,17 @@ Topology: fixed 400 kV ring A-G-B-C-A + P spurred to all four corners.
 Line length = Euclidean distance between bus (x, y) coordinates [km].
 """
 
+import collections.abc as c
 import math
 import os
+import typing as t
 import warnings
 
 import numpy as np
-
-warnings.filterwarnings("ignore")
 import pandapower as pp
 from pandapower.converter.matpower import to_mpc
+
+warnings.filterwarnings("ignore")
 
 # ----------------------------------------------------------------------------
 # CONFIG  (every assumed value lives here -- override freely)
@@ -100,22 +102,59 @@ COMP_SCENARIOS = {"s6"}
 _B_PER_KM = 2 * math.pi * 50.0 * C_PER_KM_NF * 1e-9  # S/km
 
 
-def dist(p, q):
+def dist(p: tuple[float, float], q: tuple[float, float]) -> float:
+    """Return the Euclidean distance between two points.
+
+    Args:
+        p:
+          First point `(x, y)` in km.
+        q:
+          Second point `(x, y)` in km.
+
+    Returns:
+        Distance between `p` and `q` in km.
+    """
     return math.hypot(p[0] - q[0], p[1] - q[1])
 
 
-def p_charging_mvar(coords):
-    """Capacitive MVAr the P-end half of every P-spur injects at 1 p.u."""
+def p_charging_mvar(coords: dict[str, tuple[float, float]]) -> float:
+    """Return the capacitive MVAr the P-end half of every P-spur injects at 1 p.u.
+
+    Args:
+        coords:
+          Bus name -> `(x, y)` coordinate in km.
+
+    Returns:
+        Charging power in MVAr.
+    """
     total = 0.0
-    for f, t in LINES:
-        if "P" in (f, t):
-            L = dist(coords[f], coords[t])
+    for f, dst in LINES:
+        if "P" in (f, dst):
+            L = dist(coords[f], coords[dst])
             total += (V_BASE_KV * 1e3) ** 2 * (_B_PER_KM * L / 2.0) / 1e6
     return total
 
 
-def build_net(p_coord, comp_fraction=0.0):
-    """Build the 5-bus pandapower net for a given P coordinate."""
+def build_net(
+    p_coord: tuple[float, float], comp_fraction: float = 0.0
+) -> tuple[
+    pp.pandapowerNet,
+    dict[str, tuple[float, float]],
+    dict[tuple[str, str], float],
+    float,
+]:
+    """Build the 5-bus pandapower net for a given P coordinate.
+
+    Args:
+        p_coord:
+          Coordinate `(x, y)` of bus P in km.
+        comp_fraction:
+          Fraction of the P-spur charging absorbed by a shunt reactor at P.
+
+    Returns:
+        Tuple of the net, the bus coordinates, the line lengths in km keyed by
+        `(from, to)` bus names, and the shunt reactor size in MVAr.
+    """
     coords = dict(FIXED_COORDS, P=p_coord)
     net = pp.create_empty_network(sn_mva=BASE_MVA, f_hz=50.0)
 
@@ -157,20 +196,20 @@ def build_net(p_coord, comp_fraction=0.0):
     pp.create_load(net, bus["P"], p_mw=-P_NET_INJ, q_mvar=0.0, name="P")
 
     lengths = {}
-    for f, t in LINES:
-        L = dist(coords[f], coords[t])
-        lengths[(f, t)] = L
+    for f, dst in LINES:
+        L = dist(coords[f], coords[dst])
+        lengths[(f, dst)] = L
         pp.create_line_from_parameters(
             net,
             bus[f],
-            bus[t],
+            bus[dst],
             length_km=L,
             r_ohm_per_km=R_PER_KM,
             x_ohm_per_km=X_PER_KM,
             c_nf_per_km=C_PER_KM_NF,
             g_us_per_km=0.0,
             max_i_ka=MAX_I_KA,
-            name="%s-%s" % (f, t),
+            name="%s-%s" % (f, dst),
         )
 
     # Shunt reactor at P: q_mvar > 0 absorbs reactive power (inductive).
@@ -180,12 +219,45 @@ def build_net(p_coord, comp_fraction=0.0):
     return net, coords, lengths, comp_mvar
 
 
-def fmt_row(vals, fmts):
+def fmt_row(vals: c.Iterable[float], fmts: c.Iterable[str]) -> str:
+    """Format one MATPOWER matrix row.
+
+    Args:
+        vals:
+          Values of the row.
+        fmts:
+          `%`-format string for each value.
+
+    Returns:
+        Tab-indented, semicolon-terminated row.
+    """
     return "\t" + "\t".join(f % v for f, v in zip(fmts, vals)) + ";"
 
 
-def write_m(mpc, path, name, coords, lengths, header):
-    """Serialise an mpc dict (from to_mpc) to a standard MATPOWER .m file."""
+def write_m(
+    mpc: dict[str, t.Any],
+    path: str,
+    name: str,
+    coords: dict[str, tuple[float, float]],
+    lengths: dict[tuple[str, str], float],
+    header: list[str],
+) -> None:
+    """Serialise an mpc dict (from `to_mpc`) to a standard MATPOWER .m file.
+
+    Args:
+        mpc:
+          Per-unit case dict as returned by `to_mpc`.
+        path:
+          Output file path.
+        name:
+          Scenario name used in the case function name.
+        coords:
+          Bus name -> `(x, y)` coordinate in km.
+        lengths:
+          Line lengths in km keyed by `(from, to)` bus names.
+        header:
+          Comment lines written at the top of the file.
+    """
     bus = np.atleast_2d(np.array(mpc["bus"], dtype=float))[:, :13]
     gen = np.atleast_2d(np.array(mpc["gen"], dtype=float))[:, :10]
     br = np.atleast_2d(np.array(mpc["branch"], dtype=float))[:, :13]
@@ -234,7 +306,8 @@ def write_m(mpc, path, name, coords, lengths, header):
     L.append("")
     L.append("%% branch data")
     L.append(
-        "%\tfbus\ttbus\tr\tx\tb\trateA\trateB\trateC\tratio\tangle\tstatus\tangmin\tangmax"
+        "%\tfbus\ttbus\tr\tx\tb\trateA\trateB\trateC"
+        "\tratio\tangle\tstatus\tangmin\tangmax"
     )
     L.append("mpc.branch = [")
     cf = [
@@ -252,15 +325,16 @@ def write_m(mpc, path, name, coords, lengths, header):
         "%.1f",
         "%.1f",
     ]
-    for (f, t), r in zip(LINES, br):
-        L.append(fmt_row(r, cf) + "\t%% %s-%s  %.1f km" % (f, t, lengths[(f, t)]))
+    for (f, dst), r in zip(LINES, br):
+        L.append(fmt_row(r, cf) + "\t%% %s-%s  %.1f km" % (f, dst, lengths[(f, dst)]))
     L.append("];")
     L.append("")
     with open(path, "w") as fh:
         fh.write("\n".join(L) + "\n")
 
 
-def main():
+def main() -> None:
+    """Build the PtX scenario networks, solve them and write the case files."""
     here = os.path.dirname(os.path.abspath(__file__))
     root = here
     while root != os.path.dirname(root) and not os.path.exists(

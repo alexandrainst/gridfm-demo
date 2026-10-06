@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Plot the PtX network topologies in data/networks/ptx/.
+"""Plot the PtX network topologies in data/networks/ptx/.
 
 One subplot per .m case (max 3 per row).  Each subplot shows:
   * bus positions at their geographic (x, y) coordinates [km]
@@ -14,17 +13,17 @@ build_ptx_cases.py writes, and the electrical data from the mpc matrices.
 """
 
 import glob
+import math
 import os
 import re
-import math
+import typing as t
 
-import numpy as np
 import matplotlib
-
-matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.axes import Axes
 from matplotlib.lines import Line2D
-from matplotlib.offsetbox import DrawingArea, AnnotationBbox
+from matplotlib.offsetbox import AnnotationBbox, DrawingArea
 
 REACTOR_COL = "#8B4513"
 
@@ -37,7 +36,17 @@ STYLE = {
 }
 
 
-def parse_case(path):
+def parse_case(path: str) -> dict[str, t.Any]:
+    """Parse a MATPOWER case file written by `build_ptx_cases.py`.
+
+    Args:
+        path:
+          Path of the `.m` case file.
+
+    Returns:
+        Case dict with the keys `name`, `coords`, `order`, `status`, `base`,
+        `bus`, `gen`, `branch` and `kv`.
+    """
     txt = open(path).read()
 
     coords, order = {}, []
@@ -50,7 +59,7 @@ def parse_case(path):
     status = status.group(1).strip() if status else ""
     base = float(re.search(r"mpc\.baseMVA\s*=\s*([\d.]+)", txt).group(1))
 
-    def matrix(name):
+    def matrix(name: str) -> np.ndarray:
         block = re.search(r"mpc\.%s\s*=\s*\[(.*?)\];" % name, txt, re.S).group(1)
         rows = []
         for ln in block.strip().splitlines():
@@ -72,7 +81,22 @@ def parse_case(path):
     )
 
 
-def bus_style_and_label(case, bus_i, name):
+def bus_style_and_label(
+    case: dict[str, t.Any], bus_i: int, name: str
+) -> tuple[str, str]:
+    """Return the style key and annotation label of a bus.
+
+    Args:
+        case:
+          Case dict as returned by `parse_case`.
+        bus_i:
+          MATPOWER bus number.
+        name:
+          Bus name.
+
+    Returns:
+        Tuple of the `STYLE` key and the annotation text.
+    """
     row = case["bus"][case["bus"][:, 0] == bus_i][0]
     btype, pd, qd = int(row[1]), row[2], row[3]
     grow = case["gen"][case["gen"][:, 0] == bus_i]
@@ -88,11 +112,20 @@ def bus_style_and_label(case, bus_i, name):
     return "pq", "%s — PQ load\nPd=%.0f MW\nQd=%.0f MVAr" % (name, pd, qd)
 
 
-def add_shunt_glyph(ax, x, y, bs_mvar):
-    """Draw a scale-independent shunt glyph at bus (x, y).
+def add_shunt_glyph(ax: Axes, x: float, y: float, bs_mvar: float) -> None:
+    """Draw a scale-independent shunt glyph at bus `(x, y)`.
 
-    bs_mvar < 0 -> reactor (coil to ground);  bs_mvar > 0 -> capacitor.
-    Sized in points via DrawingArea so it is unaffected by the data scale.
+    Draws a reactor if `bs_mvar < 0` and a capacitor otherwise.
+
+    Args:
+        ax:
+          Axes to draw on.
+        x:
+          Bus x coordinate in data units.
+        y:
+          Bus y coordinate in data units.
+        bs_mvar:
+          Shunt susceptance in MVAr.
     """
     col = REACTOR_COL
     da = DrawingArea(26, 36, 0, 0)
@@ -137,7 +170,15 @@ def add_shunt_glyph(ax, x, y, bs_mvar):
     )
 
 
-def plot_case(ax, case):
+def plot_case(ax: Axes, case: dict[str, t.Any]) -> None:
+    """Plot one case's topology, bus data and power-flow outcome.
+
+    Args:
+        ax:
+          Axes to draw on.
+        case:
+          Case dict as returned by `parse_case`.
+    """
     name_by_idx = {i + 1: nm for i, nm in enumerate(case["order"])}
     pos = case["coords"]
 
@@ -207,7 +248,9 @@ def plot_case(ax, case):
     )
 
 
-def main():
+def main() -> None:
+    """Plot all PtX case topologies into a single image."""
+    matplotlib.use("Agg")
     here = os.path.dirname(os.path.abspath(__file__))
     ddir = os.path.normpath(os.path.join(here, "..", "data", "networks", "ptx"))
     files = sorted(glob.glob(os.path.join(ddir, "case_ptx_*.m")))
