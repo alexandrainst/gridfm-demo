@@ -1,132 +1,73 @@
-# Gridfm Demo
+# GridFM Demo
 
-Demo case bencharking gridFM-derived power flow solutions with state-of-the-art
-deterministic solutions from pandapower.
+Demonstration of how federated learning can train a foundation model for the power grid.
+`README.md` covers usage and `docs/development.md` how the project works.
 
-## Python Conventions
+## Project
 
-### Development Workflow
+- `flower_app/` contains only the code shipped to the server and clients. Its root
+  contains only the Flower driver. Code that does not run in the federation belongs in
+  `scripts/`
+- Experiments are packages in `flower_app/experiments/<name>/`, registered in
+  `flower_app/experiments/__init__.py`. They import nothing from `flower_app/` except
+  `interface.py`, and their configuration is Python code
+- Run config defaults are in `[tool.flwr.app.config.<name>]` of `pyproject.toml`
+- Federations are in `federations/<name>/`, Dockerfiles in `build/`, scripts in
+  `scripts/`, tests in `tests/` and example configs in `docs/examples/`
+- Tests cannot import the experiments, since `torch_scatter` is only installed in the
+  Docker images
 
-- Use `uv run` for all script and command execution
-- Use `pyproject.toml`, not `requirements.txt` for dependency management
-- Do not read entire files, find the relevant line(s) with command-line tools, and only
-  read those lines
+## Workflow
 
-### Code Organisation
+- Run everything with `uv run`. Add packages to `pyproject.toml` with
+  `uv add <package>`, or `uv add --group=dev <package>` for development dependencies,
+  never with `requirements.txt`
+- Do not read entire files. Find the relevant lines with command-line tools and read
+  only those
+- Run `make check` for formatters, linters and type checkers, and `make test` for the
+  tests. `make tree` shows the directory structure
 
-- Keep modules focused and cohesive
-- Prefer many small modules over few large ones
-- The Flower App is the `flower_app` package at the repo root, not in `src/`. Flower
-  ships the project folder as is and imports the package from its root. The package root
-  holds only the Flower driver; experiment code lives in the experiment packages. Code
-  that does not run in the federation lives in `scripts/`
-- Flower experiments are packages in `flower_app/experiments/<name>/`, registered in
-  `flower_app/experiments/__init__.py`. Their run config defaults are in
-  `[tool.flwr.app.config.<name>]` of `pyproject.toml`. See `federations/README.md` for
-  adding one
-- All scripts are in the `scripts` directory. These are executed with `uv run`
-- All tests are in the `tests/` directory
-- Federations are folders in `federations/<name>/`, holding the datakit configs of the
-  clients in `datakit_config/`, their generated data in `data/` and the Docker Compose
-  file `compose.yml`. Example configs are in `docs/examples/`
-- The Dockerfiles of the Flower images are in the `build/` directory
-- There will always be a `pyproject.toml` file in the root directory
-- Use `uv add <package>` to add packages to the project, do not just add them manually
-  to `pyproject.toml`. Add development dependencies with `uv add --group=dev <package>`
-- Use the `make tree` command to see the directory structure
+## Python
 
-### Code Quality
+- Use established packages rather than reimplementing what they solve
+- Prefer many small, focused modules over few large ones
+- Fit code within 88 characters
+- Put all imports at the top of the file, unless that causes a circular import, which a
+  comment next to the import must state
+- Use f-strings, never %-formatting, and a logger, never `print`
+- Order functions and classes from high-level to low-level, with `main` first
+- Import with relative imports inside a package, and absolute imports in scripts and
+  tests
+- Always call functions with keyword arguments
+- Prefix protected functions and methods with a single underscore
+- Fully type-annotate all functions, methods and variables with Python 3.12+ syntax:
+  `list[T]`, `X | Y`, `X | None`
+- Use `import typing as t` and `import collections.abc as c`, and take `Iterable`,
+  `Generator` and `Callable` from `c`
+- Avoid `Any`. Prefer a `t.TypeVar` with a meaningful name. `dict[str, t.Any]` is fine
+  for mixed values, `list[t.Any]` is not
+- Use the `None` return type, never `NoReturn`
 
-#### Quality Checkers
+## Documentation
 
-- Run `make check` to run formatters, linters and type checkers.
-- Run tests with `make test`. It also updates the coverage badge in `README.md`.
-- Run `make format-markdown` to format Markdown files.
-
-#### General Code Conventions
-
-- Code should always fit within 88 characters
-- All imports should happen at the top of each file. The only excuse for not doing this
-  is if the import would cause a circular import, in which case this should be stated in
-  a comment next to the import statement
-- Never use the old %-style string formatting. Use f-strings instead
-- Never use `print` statements - use a logger instead
-- Functions and classes in a module or script should be ordered from the most high-level
-  to the most low-level. For example, if a function is a helper function that is only
-  used by another function, then the helper function should come after the function that
-  uses it. If there is a `main` function, then it should always be first
-- When we import things in modules from other modules in the package, we always do it
-  using relative imports:
-
-    ```python title="mypackage/module.py"
-    from .another_module import some_function
-    ```
-
-- When we import things in scripts from other modules or other scripts, we always do it
-  using absolute imports:
-
-    ```python title="scripts/script.py"
-    from mypackage.module import some_function
-    from another_script import some_other_function
-    ```
-
-    This also holds when we're importing things from modules in our tests.
-
-#### Type Hints
-
-- Fully type-annotate all functions, methods, and variables
-- Target Python 3.12+ syntax:
-  - Use `list[T]`, `dict[K, V]`, `set[T]` (not `List`, `Dict`, `Set` from typing)
-  - Use `X | Y` for unions (not `Union[X, Y]`)
-  - Use `X | None` for optional types (not `Optional[X]`)
-- Always use `import typing as t` and use the `t.` prefix for types from the typing
-  module, such as `t.Literal`, `t.TypeAlias` or `t.TYPE_CHECKING`
-- For `Iterable`, `Generator` and `Callable`, use these from the `collections.abc`
-  module, not from `typing`. Import this as `import collections.abc as c` and refer to
-  the types as `c.Iterable`, `c.Generator` and `c.Callable`, etc.
-- Try not to use the `Any` type. You can often use`t.TypeVar` instead, but always give
-  such type variables meaningful names, and not just single letter names like `T`. The
-  main place where `Any` types can be acceptable is as the return type of a dictionary
-  with mixed outputs, e.g., `dict[str, t.Any]`, since otherwise you would encounter
-  issues with the type checker. Note that `list[t.Any]` is not okay.
-- Use the `None` return type for functions that do not return anything. Never use the
-  `NoReturn` type.
-
-#### Functions
-
-- Use a single leading underscore (`_`) for protected functions which should not be
-  imported from outside the module, or for protected methods which should not be used
-  outside the class they are defined in
-- Always use keyword arguments when calling functions, never positional arguments
-- Example:
+- Docstrings are reference documentation. They describe the contract of the unit: what
+  it does, its arguments, return value, raised exceptions, side effects and invariants.
+  They do not describe the implementation, teach, give recipes, explain history or
+  design reasons, or restate what the signature already says
+- Implementation details and the reasons behind them go in inline comments next to the
+  code. Tutorials and how-to guides go in Markdown files
+- Use single backticks for code in docstrings, e.g., `x` or `None`
+- Use ASCII rather than Unicode, e.g., `->` rather than an arrow
+- Use Google-style docstrings for all public functions, classes and modules, with a
+  newline after each argument and exception name:
 
     ```python
     def process_items(items: list[Item]) -> list[Result]:
-        ...
-
-    process_items(items=items)
-    ```
-
-### Documentation
-
-- Avoid tutorial-style `#` comments that explain what code does.
-- Comments should explain **why**, not **what** (the code itself should be
-  self-explanatory)
-- Use Google-style docstrings for all public functions, classes, and modules.
-- Always include a newline after the name of each argument and exception in the
-  docstring.
-- Always prefer ascii characters over unicode (e.g., arrows as -> over →)
-- Example:
-
-    ```python
-    def process_items(items: list[Item], log: bool) -> list[Result]:
         """Process items and return results.
 
         Args:
             items:
               List of items to process.
-            log:
-              Whether to log progress.
 
         Returns:
             List of processed results.
@@ -135,7 +76,4 @@ deterministic solutions from pandapower.
             ValueError:
               If items list is empty.
         """
-        if log:
-            logger.info("Processing items")
-        return batch_process(items=items)
     ```
