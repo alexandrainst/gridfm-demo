@@ -1,6 +1,7 @@
 """Server side of the FedAvg experiment."""
 
 import json
+from collections import OrderedDict
 from pathlib import Path
 
 import torch
@@ -31,7 +32,9 @@ def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
     local_epochs = int(config["local-epochs"])
 
     task = build_task(graphkit_config=GRAPHKIT_CONFIG, data_normalizers=[])
-    initial_arrays = ArrayRecord.from_torch_state_dict(task.state_dict())
+    # Lightning annotates `state_dict()` as a `dict`, while Flower requires the
+    # `OrderedDict` it returns at runtime.
+    initial_arrays = ArrayRecord.from_torch_state_dict(OrderedDict(task.state_dict()))
     train_config = ConfigRecord({"local-epochs": local_epochs})
 
     result = FedAvg().start(
