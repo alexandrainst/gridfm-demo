@@ -6,9 +6,9 @@ import typing as t
 import typer
 
 from .choices import choose_experiment, choose_federation
-from .compose import compose
+from .compose import compose, is_up
 from .data import clients_without_data, delete_data, generate_data
-from .flower import run_experiment
+from .flower import run_experiment, superlink_address, superlink_is_reachable
 from .paths import OUTPUTS_DIR
 
 logger = logging.getLogger(__name__)
@@ -50,13 +50,18 @@ def data(
 ) -> None:
     """Generate the synthetic data of each client in a federation.
 
+    With `force`, exits with code 1 if the federation is up.
+
     Args:
         federation:
           Name of the federation, or `None` to ask the user.
         force:
           Whether to regenerate the data of clients that already have data.
     """
-    generate_data(federation=choose_federation(federation=federation), force=force)
+    chosen = choose_federation(federation=federation)
+    if force:
+        _require_down(federation=chosen)
+    generate_data(federation=chosen, force=force)
 
 
 @app.command(help="Build the Docker images of a federation.")
@@ -103,8 +108,20 @@ def run(experiment: ExperimentArgument = None) -> None:
     Args:
         experiment:
           Name of the experiment, or `None` to ask the user.
+
+    Raises:
+        typer.Exit:
+          With code 1 if no SuperLink accepts connections at the address of the
+          Flower federation. The command that starts a federation is logged.
     """
-    run_experiment(experiment=choose_experiment(experiment=experiment))
+    chosen = choose_experiment(experiment=experiment)
+    if not superlink_is_reachable():
+        logger.error(
+            f"No federation is running at {superlink_address()}. Start one with:"
+            "\n\n    uv run gridfm up <federation>\n"
+        )
+        raise typer.Exit(code=1)
+    run_experiment(experiment=chosen)
 
 
 @app.command(help="Stop a federation and remove its containers.")
@@ -128,10 +145,34 @@ def clean(
 ) -> None:
     """Delete the generated data of a federation.
 
+    Exits with code 1 if the federation is up.
+
     Args:
         federation:
           Name of the federation, or `None` to ask the user.
         yes:
           Whether to skip the confirmation.
     """
-    delete_data(federation=choose_federation(federation=federation), confirm=not yes)
+    chosen = choose_federation(federation=federation)
+    _require_down(federation=chosen)
+    delete_data(federation=chosen, confirm=not yes)
+
+
+def _require_down(federation: str) -> None:
+    """Stop the command-line interface if a federation is up.
+
+    Args:
+        federation:
+          Name of the federation.
+
+    Raises:
+        typer.Exit:
+          With code 1 if a container of the federation is running. The command that
+          stops the federation is logged.
+    """
+    if is_up(federation=federation):
+        logger.error(
+            f"{federation} is running and uses its data. Stop it first with:"
+            f"\n\n    uv run gridfm down {federation}\n"
+        )
+        raise typer.Exit(code=1)
