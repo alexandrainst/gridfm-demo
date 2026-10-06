@@ -24,6 +24,8 @@ topologies.
 
 - [Requirements](#requirements)
 - [Usage](#usage)
+- [Federations](#federations)
+- [Experiments](#experiments)
 - [Development](#development)
 - [Maintainers](#maintainers)
 - [License](#license)
@@ -69,6 +71,30 @@ confirmation:
 ```bash
 uv run gridfm down case14_2clients
 ```
+
+## Federations
+
+A federation is a set of clients and their synthetic data. Each one is a folder in
+`federations/` with a Docker Compose file and a gridfm-datakit config per client.
+
+- `case14_2clients`: two clients on the IEEE 14-bus grid (`case14_ieee` from PGLib).
+  Each client generates 20 load scenarios from an aggregated load profile, each in two
+  topology variants with one random line or generator removed, and perturbs generator
+  costs and line admittances. The clients share these settings and differ only in their
+  random seed (1001 and 2001), so their data comes from the same distribution.
+
+## Experiments
+
+An experiment is a training procedure run on a federation. Each one is a package in
+`flower_app/experiments/`, and its run config defaults are in the
+`[tool.flwr.app.config.<experiment>]` table of `pyproject.toml`.
+
+- `fedavg`: trains the gridfm-graphkit `GNS_heterogeneous` power flow model with
+  Flower's FedAvg strategy. In each round, every client trains the global model for
+  `local-epochs` epochs on its own data with the `MaskedBusMSE` loss, and the server
+  averages the client models weighted by their number of training examples. Every client
+  then reports its validation loss on the new global model. The defaults are
+  `num-server-rounds = 3` and `local-epochs = 1`.
 
 ## Development
 
