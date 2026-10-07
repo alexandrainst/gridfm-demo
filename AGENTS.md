@@ -62,19 +62,19 @@ Demonstration of how federated learning can train a foundation model for the pow
 - Use Google-style docstrings for all public functions, classes and modules, with a
   newline after each argument and exception name:
 
-    ```python
-    def process_items(items: list[Item]) -> list[Result]:
-        """Process items and return results.
+  ```python
+  def process_items(items: list[Item]) -> list[Result]:
+      """Process items and return results.
 
-        Args:
-            items:
-              List of items to process.
+      Args:
+          items:
+            List of items to process.
 
-        Returns:
-            List of processed results.
+      Returns:
+          List of processed results.
 
-        Raises:
-            ValueError:
-              If items list is empty.
-        """
-    ```
+      Raises:
+          ValueError:
+            If items list is empty.
+      """
+  ```
