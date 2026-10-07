@@ -64,11 +64,16 @@ uv run gridfm run <experiment>
 ```
 
 Stop the federation and remove its containers. The generated data and the outputs are
-kept, and `uv run gridfm clean <federation>` deletes the data after asking for
-confirmation:
+kept:
 
 ```bash
 uv run gridfm down <federation>
+```
+
+Delete the generated data of the federation after asking for confirmation:
+
+```bash
+uv run gridfm clean <federation>
 ```
 
 ## Terminology
