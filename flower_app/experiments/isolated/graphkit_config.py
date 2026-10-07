@@ -1,4 +1,4 @@
-"""Graphkit configuration of the local training experiment."""
+"""Graphkit configuration of the isolated training experiment."""
 
 import typing as t
 

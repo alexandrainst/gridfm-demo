@@ -170,7 +170,7 @@ local-epochs = 1
 
 # Each client trains only on its own data, for as many epochs as a client trains in
 # FedAvg: `fedavg.num-server-rounds * fedavg.local-epochs`.
-[tool.flwr.app.config.local]
+[tool.flwr.app.config.isolated]
 local-epochs = 3
 
 [tool.flwr.federations]
