@@ -48,9 +48,8 @@ Generate the synthetic data of each client in a federation. The data is written 
 uv run gridfm data <federation>
 ```
 
-Start the federation in the background. This builds the Docker images, which is slow
-only the first time, and starts the SuperLink, one SuperNode and ClientApp per client,
-and the ServerApp. It exits with the command to run if a client has no data:
+Start the federation in the background. This builds the Docker images, starts the
+SuperLink, one SuperNode and ClientApp per client, and the ServerApp.
 
 ```bash
 uv run gridfm up <federation>
@@ -58,9 +57,7 @@ uv run gridfm up <federation>
 
 Run an experiment on the running federation and stream its logs. The run writes its
 results to `outputs/<federation>/<experiment>/<timestamp>/`, where `<timestamp>` is the
-UTC start time of the run, such as `2026-10-06_11-34-12-345Z`. Its `run_config.json`
-also holds the Flower run ID under `run-id`. You can start several runs while the
-federation is up:
+UTC start time of the run:
 
 ```bash
 uv run gridfm run <experiment>
@@ -99,10 +96,6 @@ An experiment is a training procedure run on a federation. Each one is a package
   averages the client models weighted by their number of training examples. Every client
   then reports its validation loss on the new global model. The defaults are
   `num-server-rounds = 3`, `local-epochs = 3` and `seed = 0`.
-
-Both experiments take a `seed`. Runs of an experiment with the same settings and seed on
-the same federation give the same results, so repeating a comparison with several seeds
-shows how much the results vary.
 
 ## Development
 
