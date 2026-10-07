@@ -1,13 +1,15 @@
 # GridFM Demo
 
 <a href="https://github.com/alexandrainst/gridfm-demo">
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="assets/alexandra-logo.svg" />
 <img
- src="https://filedn.com/lRBwPhPxgV74tO0rDoe8SpH/alexandra/alexandra-logo.jpeg"
- width="239"
- height="175"
+ src="assets/alexandra-logo.svg"
+ width="300"
  align="right"
  alt="Alexandra Institute Logo"
 />
+</picture>
 </a>
 
 [![Code Coverage](https://img.shields.io/badge/Coverage-28%25-red.svg)](https://github.com/alexandrainst/gridfm-demo/tree/main/tests)
