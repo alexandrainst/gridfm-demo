@@ -24,8 +24,7 @@ topologies.
 
 - [Requirements](#requirements)
 - [Usage](#usage)
-- [Federations](#federations)
-- [Experiments](#experiments)
+- [Terminology](#terminology)
 - [Development](#development)
 - [Maintainers](#maintainers)
 - [License](#license)
@@ -83,7 +82,9 @@ confirmation:
 uv run gridfm down case14_2clients
 ```
 
-## Federations
+## Terminology
+
+### Federations
 
 A federation is a set of clients and their synthetic data. Each one is a folder in
 `federations/` with a Docker Compose file and a gridfm-datakit config per client.
@@ -94,7 +95,7 @@ A federation is a set of clients and their synthetic data. Each one is a folder 
   costs and line admittances. The clients share these settings and differ only in their
   random seed (1001 and 2001), so their data comes from the same distribution.
 
-## Experiments
+### Experiments
 
 An experiment is a training procedure run on a federation. Each one is a package in
 `flower_app/experiments/`, and its run config defaults are in the
