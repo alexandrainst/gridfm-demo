@@ -57,7 +57,9 @@ uv run gridfm up case14_2clients
 ```
 
 Run an experiment on the running federation and stream its logs. The run writes its
-results to `outputs/<experiment>/<run-id>/`. You can start several runs while the
+results to `outputs/<federation>/<experiment>/<timestamp>/`, where `<timestamp>` is the
+UTC start time of the run, such as `2026-10-06_11-34-12-345Z`. Its `run_config.json`
+also holds the Flower run ID under `run-id`. You can start several runs while the
 federation is up:
 
 ```bash

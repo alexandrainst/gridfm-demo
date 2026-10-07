@@ -88,7 +88,8 @@ An experiment is a package `flower_app/experiments/<name>/`. Its `__init__.py` d
 - `server_main(grid, context, paths)` runs once per run on the server. It reads its
   settings from `context.run_config` under the keys `<name>.<key>`, sends messages to
   the clients through `grid`, for example with a Flower strategy, and writes its results
-  to `paths.output_dir`. That is `outputs/<name>/<run-id>/` on the host.
+  to `paths.output_dir`. That is `outputs/<federation>/<name>/<timestamp>/` on the host,
+  where `<timestamp>` is the UTC start time of the run with milliseconds.
 - `client_train(msg, context, dataset, paths)` runs on a client for each train message
   and returns the reply. `dataset` contains the client's data directory, its networks
   and the maximum number of scenarios per network. `paths.log_dir` is for training logs.
@@ -126,7 +127,7 @@ Docker Compose file. `federations/case14_2clients/` is an example with two clien
   `federations/<name>/data/client_<i>`. `uv run gridfm data <name>` generates the data
   of every client into `data/`, which `uv run gridfm up <name>` requires.
 - `compose.yml` starts one `superlink`, one `serverapp` built from `../../build/server`
-  with `../../outputs` mounted at `/outputs`, and two services per client:
+  with `../../outputs/<name>` mounted at `/outputs`, and two services per client:
   - a SuperNode with its own ClientAppIO port and the node config
     `data-dir='/data/client_<i>' networks='<network.name>' scenarios='<count>'`. Several
     networks and their scenario counts are comma-separated.

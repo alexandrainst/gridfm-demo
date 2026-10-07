@@ -25,7 +25,8 @@ def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
           Context of the ServerApp. Its run config holds `"experiment"`, and
           `"num-server-rounds"` and `"local-epochs"` in the experiment's table.
         paths:
-          Output directory of this run.
+          Output directory of this run. Its `run_config.json` also holds the Flower
+          run ID under `"run-id"`.
     """
     config = _experiment_config(run_config=context.run_config)
     num_rounds = int(config["num-server-rounds"])
@@ -43,7 +44,11 @@ def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
         num_rounds=num_rounds,
         train_config=train_config,
     )
-    save_outputs(result=result, config=config, output_dir=paths.output_dir)
+    save_outputs(
+        result=result,
+        config={"run-id": context.run_id, **config},
+        output_dir=paths.output_dir,
+    )
 
 
 def save_outputs(result: Result, config: UserConfig, output_dir: Path) -> None:

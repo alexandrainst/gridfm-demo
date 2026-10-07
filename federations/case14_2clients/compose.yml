@@ -55,7 +55,7 @@ services:
       - --appio-api-address
       - superlink:9091
     volumes:
-      - ../../outputs:/outputs
+      - ../../outputs/case14_2clients:/outputs
     networks:
       - flwr-network
     depends_on:

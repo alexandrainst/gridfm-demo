@@ -97,7 +97,7 @@ def up(federation: FederationArgument = None) -> None:
         )
         raise typer.Exit(code=1)
     # Docker would create the mounted folder as root if it did not exist.
-    OUTPUTS_DIR.mkdir(exist_ok=True)
+    (OUTPUTS_DIR / chosen).mkdir(parents=True, exist_ok=True)
     compose(federation=chosen, args=["up", "-d", "--build"])
 
 

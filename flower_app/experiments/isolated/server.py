@@ -44,7 +44,8 @@ def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
         paths:
           Output directory of this run. Receives `metrics.json`, with the averaged
           metrics under `"evaluate_clientapp"` and round `"1"` as in FedAvg's
-          `metrics.json`, and `run_config.json`.
+          `metrics.json`, and `run_config.json`, which also holds the Flower run ID
+          under `"run-id"`.
 
     Raises:
         RuntimeError:
@@ -80,7 +81,8 @@ def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
     paths.output_dir.mkdir(parents=True, exist_ok=True)
     metrics = {"evaluate_clientapp": {"1": dict(averaged)}}
     (paths.output_dir / "metrics.json").write_text(json.dumps(metrics, indent=2))
-    (paths.output_dir / "run_config.json").write_text(json.dumps(config, indent=2))
+    run_config = {"run-id": context.run_id, **config}
+    (paths.output_dir / "run_config.json").write_text(json.dumps(run_config, indent=2))
 
 
 def _wait_for_clients(grid: Grid, min_clients: int) -> list[int]:
