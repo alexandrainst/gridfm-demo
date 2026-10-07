@@ -1,4 +1,4 @@
-"""Local training: each client trains the graphkit model on its own data only."""
+"""Isolated training: each client trains the graphkit model on its own data only."""
 
 from ...interface import Experiment
 from .client import evaluate, train

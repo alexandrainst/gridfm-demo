@@ -65,12 +65,12 @@ uv run gridfm run fedavg
 ```
 
 To compare federated training with training on each client's own data only, also run the
-`local` experiment on the same federation. In the `metrics.json` of each run, the last
-round under `evaluate_clientapp` holds the validation loss on the clients' own data,
-averaged over clients:
+`isolated` experiment on the same federation. In the `metrics.json` of each run, the
+last round under `evaluate_clientapp` holds the validation loss on the clients' own
+data, averaged over clients:
 
 ```bash
-uv run gridfm run local
+uv run gridfm run isolated
 ```
 
 Stop the federation and remove its containers. The generated data and the outputs are

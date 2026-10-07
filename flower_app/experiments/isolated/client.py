@@ -1,4 +1,4 @@
-"""Client side of the local training experiment."""
+"""Client side of the isolated training experiment."""
 
 from flwr.app import Context, Message, MetricRecord, RecordDict
 
@@ -55,7 +55,7 @@ def train(
 def evaluate(
     msg: Message, context: Context, dataset: ClientDataset, paths: ClientPaths
 ) -> Message:
-    """Reject evaluate messages, which local training does not send.
+    """Reject evaluate messages, which isolated training does not send.
 
     Args:
         msg:
@@ -75,6 +75,6 @@ def evaluate(
           Always, since each client evaluates its model when it trains.
     """
     raise NotImplementedError(
-        "The local experiment evaluates on the clients during training and does not "
+        "The isolated experiment evaluates on the clients during training and does not "
         "send evaluate messages."
     )

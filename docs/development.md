@@ -64,7 +64,7 @@ experiment on any federation.
   `server_app.py` and `client_app.py` and what an experiment provides.
 - `flower_app/experiments/<name>/` contains one experiment. Each experiment must conform
   to the interface from `interface.py`. `fedavg/` trains a graphkit model with FedAvg,
-  and `local/` trains it on each client's own data only, as a baseline. In the
+  and `isolated/` trains it on each client's own data only, as a baseline. In the
   `metrics.json` of both, the last round under `evaluate_clientapp` holds the validation
   loss of the final models on the clients' own data, averaged over clients.
 - `federations/<name>/` contains one federation. `datakit_config/` contains one

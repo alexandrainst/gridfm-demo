@@ -1,4 +1,4 @@
-"""Server side of the local training experiment."""
+"""Server side of the isolated training experiment."""
 
 import json
 import logging
