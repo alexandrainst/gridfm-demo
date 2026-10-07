@@ -1,6 +1,8 @@
 """Client side of the isolated training experiment."""
 
-from flwr.app import Context, Message, MetricRecord, RecordDict
+import lightning as L
+import numpy as np
+from flwr.app import ConfigRecord, Context, Message, MetricRecord, RecordDict
 
 from ...interface import ClientDataset, ClientPaths
 from .graphkit_config import GRAPHKIT_CONFIG
@@ -15,8 +17,8 @@ def train(
 
     Args:
         msg:
-          Message with the initial model under `"arrays"` and `"local-epochs"` under
-          `"config"`.
+          Message with the initial model under `"arrays"`, and `"local-epochs"`
+          and `"seed"` under `"config"`.
         context:
           Context of the ClientApp.
         dataset:
@@ -27,14 +29,14 @@ def train(
     Returns:
         Reply with the validation `"loss"` of the trained model and `"num-examples"`
         under `"metrics"`.
-
-    Raises:
-        TypeError:
-          If `"local-epochs"` is not an integer.
     """
-    local_epochs = msg.content.config_records["config"]["local-epochs"]
-    if not isinstance(local_epochs, int):
-        raise TypeError(f"'local-epochs' must be an integer, got {local_epochs!r}.")
+    config = msg.content.config_records["config"]
+    local_epochs = _config_int(config=config, key="local-epochs")
+    entropy = [_config_int(config=config, key="seed"), dataset.client_id]
+    # `SeedSequence` mixes the run's seed and the client into one 32-bit seed, so each
+    # client shuffles differently while runs repeat.
+    client_seed = int(np.random.SeedSequence(entropy=entropy).generate_state(1)[0])
+    L.seed_everything(seed=client_seed, workers=True, verbose=False)
     task, data_module = build_task_and_datamodule(
         graphkit_config=GRAPHKIT_CONFIG, dataset=dataset
     )
@@ -78,3 +80,25 @@ def evaluate(
         "The isolated experiment evaluates on the clients during training and does not "
         "send evaluate messages."
     )
+
+
+def _config_int(config: ConfigRecord, key: str) -> int:
+    """Return an integer value of a config record.
+
+    Args:
+        config:
+          Config record of a message.
+        key:
+          Key of the value.
+
+    Returns:
+        The value under `key`.
+
+    Raises:
+        TypeError:
+          If the value is not an integer.
+    """
+    value = config[key]
+    if not isinstance(value, int):
+        raise TypeError(f"{key!r} must be an integer, got {value!r}.")
+    return value

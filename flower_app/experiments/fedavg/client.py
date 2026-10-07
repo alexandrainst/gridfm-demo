@@ -2,7 +2,16 @@
 
 from collections import OrderedDict
 
-from flwr.app import ArrayRecord, Context, Message, MetricRecord, RecordDict
+import lightning as L
+import numpy as np
+from flwr.app import (
+    ArrayRecord,
+    ConfigRecord,
+    Context,
+    Message,
+    MetricRecord,
+    RecordDict,
+)
 
 from ...interface import ClientDataset, ClientPaths
 from .graphkit_config import GRAPHKIT_CONFIG
@@ -17,8 +26,8 @@ def train(
 
     Args:
         msg:
-          Message with the global model under `"arrays"` and `"local-epochs"` under
-          `"config"`.
+          Message with the global model under `"arrays"`, and `"local-epochs"`,
+          `"seed"` and `"server-round"` under `"config"`.
         context:
           Context of the ClientApp.
         dataset:
@@ -29,14 +38,18 @@ def train(
     Returns:
         Reply with the updated model under `"arrays"` and `"num-examples"` under
         `"metrics"`.
-
-    Raises:
-        TypeError:
-          If `"local-epochs"` is not an integer.
     """
-    local_epochs = msg.content.config_records["config"]["local-epochs"]
-    if not isinstance(local_epochs, int):
-        raise TypeError(f"'local-epochs' must be an integer, got {local_epochs!r}.")
+    config = msg.content.config_records["config"]
+    local_epochs = _config_int(config=config, key="local-epochs")
+    entropy = [
+        _config_int(config=config, key="seed"),
+        _config_int(config=config, key="server-round"),
+        dataset.client_id,
+    ]
+    # `SeedSequence` mixes the run's seed, the round and the client into one 32-bit
+    # seed, so each round and client shuffles differently while runs repeat.
+    client_seed = int(np.random.SeedSequence(entropy=entropy).generate_state(1)[0])
+    L.seed_everything(seed=client_seed, workers=True, verbose=False)
     task, data_module = build_task_and_datamodule(
         graphkit_config=GRAPHKIT_CONFIG, dataset=dataset
     )
@@ -90,3 +103,25 @@ def evaluate(
         {"metrics": MetricRecord({"loss": val_loss, "num-examples": num_examples})}
     )
     return Message(content=reply, reply_to=msg)
+
+
+def _config_int(config: ConfigRecord, key: str) -> int:
+    """Return an integer value of a config record.
+
+    Args:
+        config:
+          Config record of a message.
+        key:
+          Key of the value.
+
+    Returns:
+        The value under `key`.
+
+    Raises:
+        TypeError:
+          If the value is not an integer.
+    """
+    value = config[key]
+    if not isinstance(value, int):
+        raise TypeError(f"{key!r} must be an integer, got {value!r}.")
+    return value

@@ -5,6 +5,7 @@ import logging
 import time
 from collections import OrderedDict
 
+import lightning as L
 from flwr.app import (
     ArrayRecord,
     ConfigRecord,
@@ -40,7 +41,7 @@ def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
           Grid connecting the ServerApp to the SuperNodes.
         context:
           Context of the ServerApp. Its run config holds `"experiment"`, and
-          `"local-epochs"` in the experiment's table.
+          `"local-epochs"` and `"seed"` in the experiment's table.
         paths:
           Output directory of this run. Receives `metrics.json`, with the averaged
           metrics under `"evaluate_clientapp"` and round `"1"` as in FedAvg's
@@ -53,7 +54,9 @@ def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
     """
     config = _experiment_config(run_config=context.run_config)
     local_epochs = int(config["local-epochs"])
+    seed = int(config["seed"])
 
+    L.seed_everything(seed=seed, workers=True, verbose=False)
     task = build_task(graphkit_config=GRAPHKIT_CONFIG, data_normalizers=[])
     # Lightning annotates `state_dict()` as a `dict`, while Flower requires the
     # `OrderedDict` it returns at runtime.
@@ -61,7 +64,7 @@ def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
     content = RecordDict(
         {
             "arrays": initial_arrays,
-            "config": ConfigRecord({"local-epochs": local_epochs}),
+            "config": ConfigRecord({"local-epochs": local_epochs, "seed": seed}),
         }
     )
     messages = [
