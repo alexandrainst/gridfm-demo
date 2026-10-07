@@ -38,13 +38,14 @@ topologies.
 
 Run the demo with the `gridfm` command. Each command takes a federation from
 `federations/` or an experiment from `flower_app/experiments/` as its argument, and asks
-for one if it is left out. `uv run gridfm --help` lists all commands.
+for one if it is left out. [Terminology](#terminology) describes the available
+federations and experiments, and `uv run gridfm --help` lists all commands.
 
-Generate the synthetic data of each client in the federation. The data is written to
-`federations/case14_2clients/data/`, and clients that already have data are skipped:
+Generate the synthetic data of each client in a federation. The data is written to
+`federations/<federation>/data/`, and clients that already have data are skipped:
 
 ```bash
-uv run gridfm data case14_2clients
+uv run gridfm data <federation>
 ```
 
 Start the federation in the background. This builds the Docker images, which is slow
@@ -52,7 +53,7 @@ only the first time, and starts the SuperLink, one SuperNode and ClientApp per c
 and the ServerApp. It exits with the command to run if a client has no data:
 
 ```bash
-uv run gridfm up case14_2clients
+uv run gridfm up <federation>
 ```
 
 Run an experiment on the running federation and stream its logs. The run writes its
@@ -62,24 +63,15 @@ also holds the Flower run ID under `run-id`. You can start several runs while th
 federation is up:
 
 ```bash
-uv run gridfm run fedavg
-```
-
-To compare federated training with training on each client's own data only, also run the
-`isolated` experiment on the same federation. In the `metrics.json` of each run, the
-last round under `evaluate_clientapp` holds the validation loss on the clients' own
-data, averaged over clients:
-
-```bash
-uv run gridfm run isolated
+uv run gridfm run <experiment>
 ```
 
 Stop the federation and remove its containers. The generated data and the outputs are
-kept, and `uv run gridfm clean case14_2clients` deletes the data after asking for
+kept, and `uv run gridfm clean <federation>` deletes the data after asking for
 confirmation:
 
 ```bash
-uv run gridfm down case14_2clients
+uv run gridfm down <federation>
 ```
 
 ## Terminology
