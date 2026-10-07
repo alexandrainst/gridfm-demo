@@ -128,10 +128,10 @@ Docker Compose file. `federations/case14_2clients/` is an example with two clien
 - `compose.yml` starts one `superlink`, one `serverapp` built from `../../build/server`
   with `../../outputs` mounted at `/outputs`, and two services per client:
   - a SuperNode with its own ClientAppIO port and the node config
-      `data-dir='/data/client_<i>' networks='<network.name>' scenarios='<count>'`.
-      Several networks and their scenario counts are comma-separated.
+    `data-dir='/data/client_<i>' networks='<network.name>' scenarios='<count>'`. Several
+    networks and their scenario counts are comma-separated.
   - a ClientApp built from `../../build/client` that connects to that SuperNode and
-      mounts `./data/client_<i>` at `/data/client_<i>`.
+    mounts `./data/client_<i>` at `/data/client_<i>`.
 - `compose.yml` must not set a top-level `name:`. The Compose project is then named
   after the folder, which keeps the containers of different federations apart and lets
   `gridfm` tell whether a federation is up.
