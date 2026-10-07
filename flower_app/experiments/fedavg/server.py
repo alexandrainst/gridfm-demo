@@ -4,6 +4,7 @@ import json
 from collections import OrderedDict
 from pathlib import Path
 
+import lightning as L
 import torch
 from flwr.app import ArrayRecord, ConfigRecord, Context, MetricRecord
 from flwr.common.typing import UserConfig
@@ -23,7 +24,8 @@ def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
           Grid connecting the ServerApp to the SuperNodes.
         context:
           Context of the ServerApp. Its run config holds `"experiment"`, and
-          `"num-server-rounds"` and `"local-epochs"` in the experiment's table.
+          `"num-server-rounds"`, `"local-epochs"` and `"seed"` in the experiment's
+          table.
         paths:
           Output directory of this run. Its `run_config.json` also holds the Flower
           run ID under `"run-id"`.
@@ -31,12 +33,14 @@ def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
     config = _experiment_config(run_config=context.run_config)
     num_rounds = int(config["num-server-rounds"])
     local_epochs = int(config["local-epochs"])
+    seed = int(config["seed"])
 
+    L.seed_everything(seed=seed, workers=True, verbose=False)
     task = build_task(graphkit_config=GRAPHKIT_CONFIG, data_normalizers=[])
     # Lightning annotates `state_dict()` as a `dict`, while Flower requires the
     # `OrderedDict` it returns at runtime.
     initial_arrays = ArrayRecord.from_torch_state_dict(OrderedDict(task.state_dict()))
-    train_config = ConfigRecord({"local-epochs": local_epochs})
+    train_config = ConfigRecord({"local-epochs": local_epochs, "seed": seed})
 
     result = FedAvg().start(
         grid=grid,

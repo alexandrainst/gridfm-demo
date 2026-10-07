@@ -105,7 +105,11 @@ An experiment is a training procedure run on a federation. Each one is a package
   `local-epochs` epochs on its own data with the `MaskedBusMSE` loss, and the server
   averages the client models weighted by their number of training examples. Every client
   then reports its validation loss on the new global model. The defaults are
-  `num-server-rounds = 3` and `local-epochs = 3`.
+  `num-server-rounds = 3`, `local-epochs = 3` and `seed = 0`.
+
+Both experiments take a `seed`. Runs of an experiment with the same settings and seed on
+the same federation give the same results, so repeating a comparison with several seeds
+shows how much the results vary.
 
 ## Development
 

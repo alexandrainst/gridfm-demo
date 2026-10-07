@@ -117,6 +117,12 @@ uv run flwr run . local-deployment \
   --run-config "experiment='fedavg' fedavg.local-epochs=2" --stream
 ```
 
+Each experiment seeds its random number generators from its `seed` run config key. The
+server seeds before it builds the initial model, and sends the seed to the clients with
+each training message. Each client seeds before it trains, from the seed, the round and
+its client ID, so every round and client shuffles differently while runs with the same
+seed repeat. A new experiment should do the same to keep its runs repeatable.
+
 ## Adding a Federation
 
 A federation is a folder `federations/<name>/` with one datakit config per client and a
@@ -132,7 +138,7 @@ Docker Compose file. `federations/case14_2clients/` is an example with two clien
   - a SuperNode with its own ClientAppIO port and the node config
     `client-id=<i> data-dir='/data/client_<i>' networks='<network.name>' scenarios='<count>'`.
     Several networks and their scenario counts are comma-separated. The client ID must
-    stay the same across runs.
+    stay the same across runs, since the clients seed from it.
   - a ClientApp built from `../../build/client` that connects to that SuperNode and
     mounts `./data/client_<i>` at `/data/client_<i>`.
 - `compose.yml` must not set a top-level `name:`. The Compose project is then named
