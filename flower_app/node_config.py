@@ -10,7 +10,7 @@ from flwr.app import Context
 
 from .interface import ClientDataset
 
-NODE_CONFIG_KEYS: tuple[str, ...] = ("data-dir", "networks", "scenarios")
+NODE_CONFIG_KEYS: tuple[str, ...] = ("client-id", "data-dir", "networks", "scenarios")
 
 
 def client_dataset(context: Context) -> ClientDataset:
@@ -18,9 +18,9 @@ def client_dataset(context: Context) -> ClientDataset:
 
     Args:
         context:
-          Context of the ClientApp. Its node config holds `"data-dir"`, `"networks"`
-          (comma-separated network names) and `"scenarios"` (comma-separated
-          scenario counts, one per network).
+          Context of the ClientApp. Its node config holds `"client-id"` (an integer),
+          `"data-dir"`, `"networks"` (comma-separated network names) and
+          `"scenarios"` (comma-separated scenario counts, one per network).
 
     Returns:
         The client's dataset.
@@ -29,7 +29,8 @@ def client_dataset(context: Context) -> ClientDataset:
         KeyError:
           If the node config lacks one of the keys.
         ValueError:
-          If a scenario count is not an integer, or the lists are invalid as
+          If the client ID or a scenario count is not an integer, or the lists are
+          invalid as
           described in `ClientDataset`.
     """
     missing = [key for key in NODE_CONFIG_KEYS if key not in context.node_config]
@@ -37,6 +38,11 @@ def client_dataset(context: Context) -> ClientDataset:
         raise KeyError(
             f"The node config has no {', '.join(map(repr, missing))}. Set it with the "
             "SuperNode's `--node-config`."
+        )
+    client_id = context.node_config["client-id"]
+    if not isinstance(client_id, int):
+        raise ValueError(
+            f"The node config 'client-id' must be an integer, got {client_id!r}."
         )
     data_dir = str(context.node_config["data-dir"])
     networks = _split(value=str(context.node_config["networks"]))
@@ -49,7 +55,10 @@ def client_dataset(context: Context) -> ClientDataset:
             f"{','.join(scenarios)!r}."
         ) from err
     return ClientDataset(
-        data_dir=Path(data_dir), networks=tuple(networks), scenarios=scenario_counts
+        client_id=client_id,
+        data_dir=Path(data_dir),
+        networks=tuple(networks),
+        scenarios=scenario_counts,
     )
 
 

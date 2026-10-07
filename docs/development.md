@@ -91,9 +91,10 @@ An experiment is a package `flower_app/experiments/<name>/`. Its `__init__.py` d
   to `paths.output_dir`. That is `outputs/<federation>/<name>/<timestamp>/` on the host,
   where `<timestamp>` is the UTC start time of the run with milliseconds.
 - `client_train(msg, context, dataset, paths)` runs on a client for each train message
-  and returns the reply. `dataset` contains the client's data directory, its networks
-  and the maximum number of scenarios per network. `paths.log_dir` is for training logs.
-  The client gets its settings from the server in `msg`, not from the run config.
+  and returns the reply. `dataset` contains the client's ID, its data directory, its
+  networks and the maximum number of scenarios per network. `paths.log_dir` is for
+  training logs. The client gets its settings from the server in `msg`, not from the run
+  config.
 - `client_evaluate(msg, context, dataset, paths)` does the same for evaluate messages.
 
 The experiment imports nothing from `flower_app/` except `interface.py`. Its
@@ -129,8 +130,9 @@ Docker Compose file. `federations/case14_2clients/` is an example with two clien
 - `compose.yml` starts one `superlink`, one `serverapp` built from `../../build/server`
   with `../../outputs/<name>` mounted at `/outputs`, and two services per client:
   - a SuperNode with its own ClientAppIO port and the node config
-    `data-dir='/data/client_<i>' networks='<network.name>' scenarios='<count>'`. Several
-    networks and their scenario counts are comma-separated.
+    `client-id=<i> data-dir='/data/client_<i>' networks='<network.name>' scenarios='<count>'`.
+    Several networks and their scenario counts are comma-separated. The client ID must
+    stay the same across runs.
   - a ClientApp built from `../../build/client` that connects to that SuperNode and
     mounts `./data/client_<i>` at `/data/client_<i>`.
 - `compose.yml` must not set a top-level `name:`. The Compose project is then named

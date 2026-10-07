@@ -14,13 +14,17 @@ def test_client_dataset_reads_single_network() -> None:
     """A single network and an integer scenario count are parsed."""
     context = _context(
         node_config={
+            "client-id": 0,
             "data-dir": "/data/client_0",
             "networks": "case14_ieee",
             "scenarios": 40,
         }
     )
     assert client_dataset(context=context) == ClientDataset(
-        data_dir=Path("/data/client_0"), networks=("case14_ieee",), scenarios=(40,)
+        client_id=0,
+        data_dir=Path("/data/client_0"),
+        networks=("case14_ieee",),
+        scenarios=(40,),
     )
 
 
@@ -28,6 +32,7 @@ def test_client_dataset_reads_comma_separated_lists() -> None:
     """Comma-separated networks and scenario counts are split and stripped."""
     context = _context(
         node_config={
+            "client-id": 0,
             "data-dir": "/data/client_0",
             "networks": "case14_ieee, case30_ieee",
             "scenarios": "40,20",
@@ -55,6 +60,7 @@ def test_client_dataset_rejects_non_integer_scenarios() -> None:
     """A scenario count that is not an integer raises a `ValueError`."""
     context = _context(
         node_config={
+            "client-id": 0,
             "data-dir": "/data",
             "networks": "case14_ieee",
             "scenarios": "many",
@@ -68,6 +74,7 @@ def test_client_dataset_rejects_length_mismatch() -> None:
     """Different numbers of networks and scenario counts raise a `ValueError`."""
     context = _context(
         node_config={
+            "client-id": 0,
             "data-dir": "/data",
             "networks": "case14_ieee,case30_ieee",
             "scenarios": "40",
@@ -80,7 +87,12 @@ def test_client_dataset_rejects_length_mismatch() -> None:
 def test_client_dataset_rejects_empty_networks() -> None:
     """An empty network list raises a `ValueError`."""
     context = _context(
-        node_config={"data-dir": "/data", "networks": "", "scenarios": ""}
+        node_config={
+            "client-id": 0,
+            "data-dir": "/data",
+            "networks": "",
+            "scenarios": "",
+        }
     )
     with pytest.raises(ValueError, match="at least one network"):
         client_dataset(context=context)

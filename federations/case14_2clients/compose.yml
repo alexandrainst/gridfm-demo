@@ -21,7 +21,7 @@ services:
       - --isolation
       - process
       - --node-config
-      - "data-dir='/data/client_0' networks='case14_ieee' scenarios='40'"
+      - "client-id=0 data-dir='/data/client_0' networks='case14_ieee' scenarios='40'"
     networks:
       - flwr-network
     depends_on:
@@ -38,7 +38,7 @@ services:
       - --isolation
       - process
       - --node-config
-      - "data-dir='/data/client_1' networks='case14_ieee' scenarios='40'"
+      - "client-id=1 data-dir='/data/client_1' networks='case14_ieee' scenarios='40'"
     networks:
       - flwr-network
     depends_on:
