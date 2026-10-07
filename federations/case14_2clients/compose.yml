@@ -71,6 +71,11 @@ services:
       - clientapp
       - --appio-api-address
       - supernode-1:9094
+    # PyTorch otherwise starts one OpenMP thread per host core in every ClientApp,
+    # and the ClientApps oversubscribe the CPU while training tiny graphs.
+    environment:
+      OMP_NUM_THREADS: 1
+      MKL_NUM_THREADS: 1
     volumes:
       - ./data/client_0:/data/client_0
     networks:
@@ -87,6 +92,9 @@ services:
       - clientapp
       - --appio-api-address
       - supernode-2:9095
+    environment:
+      OMP_NUM_THREADS: 1
+      MKL_NUM_THREADS: 1
     volumes:
       - ./data/client_1:/data/client_1
     networks:
