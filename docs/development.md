@@ -90,7 +90,10 @@ An experiment is a package `flower_app/experiments/<name>/`. Its `__init__.py` d
   settings from `context.run_config` under the keys `<name>.<key>`, sends messages to
   the clients through `grid`, for example with a Flower strategy, and writes its results
   to `paths.output_dir`. That is `outputs/<federation>/<name>/<timestamp>/` on the host,
-  where `<timestamp>` is the UTC start time of the run with milliseconds.
+  where `<timestamp>` is the UTC start time of the run with milliseconds. An experiment
+  that trains one shared model, such as `fedavg`, saves it as `final_model.pt` together
+  with `graphkit_config.json`, the graphkit configuration the model was built from.
+  `gridfm predict` needs both files to rebuild the model on the host.
 - `client_train(msg, context, dataset, paths)` runs on a client for each train message
   and returns the reply. `dataset` contains the client's ID, its data directory, its
   networks and the maximum number of scenarios per network. `paths.log_dir` is for

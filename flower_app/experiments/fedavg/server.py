@@ -1,6 +1,7 @@
 """Server side of the FedAvg experiment."""
 
 import json
+import typing as t
 from collections import OrderedDict
 from pathlib import Path
 
@@ -51,21 +52,31 @@ def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
     save_outputs(
         result=result,
         config={"run-id": context.run_id, **config},
+        graphkit_config=GRAPHKIT_CONFIG,
         output_dir=paths.output_dir,
     )
 
 
-def save_outputs(result: Result, config: UserConfig, output_dir: Path) -> None:
-    """Write the final model, metrics and run config of a run.
+def save_outputs(
+    result: Result,
+    config: UserConfig,
+    graphkit_config: dict[str, t.Any],
+    output_dir: Path,
+) -> None:
+    """Write the final model, its graphkit config, metrics and run config of a run.
 
     Args:
         result:
           Result returned by the strategy.
         config:
           Run config of the experiment, written to `run_config.json`.
+        graphkit_config:
+          Graphkit configuration the model was built from, without `data.networks`
+          and `data.scenarios`. Written to `graphkit_config.json`.
         output_dir:
           Directory to write to. Created if missing. Receives `final_model.pt` (state
-          dict), `metrics.json` (metrics per round) and `run_config.json`.
+          dict), `graphkit_config.json`, `metrics.json` (metrics per round) and
+          `run_config.json`.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -81,6 +92,9 @@ def save_outputs(result: Result, config: UserConfig, output_dir: Path) -> None:
     }
     (output_dir / "metrics.json").write_text(json.dumps(metrics, indent=2))
     (output_dir / "run_config.json").write_text(json.dumps(config, indent=2))
+    (output_dir / "graphkit_config.json").write_text(
+        json.dumps(graphkit_config, indent=2)
+    )
 
 
 def _experiment_config(run_config: UserConfig) -> UserConfig:
