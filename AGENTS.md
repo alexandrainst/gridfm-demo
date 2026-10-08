@@ -13,8 +13,8 @@ Demonstration of how federated learning can train a foundation model for the pow
   `interface.py`, and their configuration is Python code
 - Run config defaults are in `[tool.flwr.app.config.<name>]` of `pyproject.toml`
 - The `gridfm` command-line interface is the `gridfm_cli` package. Federations are in
-  `federations/<name>/`, Dockerfiles in `build/`, scripts in `scripts/`, tests in
-  `tests/` and example configs in `docs/examples/`
+  `federations/<name>/`, Dockerfiles in `build/`, scripts in `scripts/`, marimo
+  notebooks in `notebooks/`, tests in `tests/` and example configs in `docs/examples/`
 - `torch-scatter`, which gridfm-graphkit imports, is built from source by `uv sync`,
   which needs a C++ compiler
 

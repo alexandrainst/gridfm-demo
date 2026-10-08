@@ -104,6 +104,12 @@ ignore = [
 "__init__.py" = [
   "F401",
 ]
+# marimo generates the signatures of the cell functions, which are all named `_`, and
+# drops annotations from them.
+"notebooks/*.py" = [
+  "ANN001",
+  "ANN202",
+]
 
 [tool.ruff.lint.isort]
 split-on-trailing-comma = false

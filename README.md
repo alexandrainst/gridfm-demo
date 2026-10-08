@@ -99,6 +99,13 @@ given as `<experiment>/<timestamp>`, and only experiments that save a model, suc
 uv run gridfm predict <federation> <run>
 ```
 
+Open the notebook that plots the predictions of a run on the network of one scenario. It
+reads `predictions/` and the client data, and writes nothing:
+
+```bash
+uv run marimo edit notebooks/scenarios.py
+```
+
 Stop the federation and remove its containers. The generated data and the outputs are
 kept:
 
