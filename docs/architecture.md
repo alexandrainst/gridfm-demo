@@ -113,6 +113,16 @@ The folder `scripts/` holds standalone scripts that run outside the federation, 
 builders of custom grids in the [MATPOWER](https://matpower.org/) case format and of
 load profiles. Nothing in `flower_app` or `gridfm_cli` imports them.
 
+### `notebooks/`
+
+The folder `notebooks/` holds [marimo](https://marimo.io/) notebooks that look at the
+results of runs. `scenarios.py` draws one scenario of one client as a network, with the
+model's input, the power flow solution, the prediction and the error, using the files
+that `gridfm predict` writes to `predictions/`.
+
+Boundary: the notebooks only read files and plot. They never build or run a model, and
+they import only the parts of `gridfm_cli` that do not import gridfm-graphkit.
+
 ### `tests/`
 
 The folder `tests/` holds [pytest](https://docs.pytest.org/) tests of the code that runs

@@ -21,3 +21,6 @@ data_out/
 
 # Predictions written by `gridfm predict`
 /predictions/
+
+# Session caches written by marimo
+__marimo__/
