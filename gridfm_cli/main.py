@@ -5,11 +5,13 @@ import typing as t
 
 import typer
 
-from .choices import choose_experiment, choose_federation
+from .choices import choose_experiment, choose_federation, choose_run
 from .compose import compose, is_up
 from .data import clients_without_data, delete_data, generate_data
 from .flower import run_experiment, superlink_address, superlink_is_reachable
 from .paths import OUTPUTS_DIR
+from .predict import predict_run
+from .runs import missing_model_files
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +26,14 @@ FederationArgument = t.Annotated[
     str | None,
     typer.Argument(
         help="Folder in federations/. Asked for if left out.", show_default=False
+    ),
+]
+RunArgument = t.Annotated[
+    str | None,
+    typer.Argument(
+        help="Run as <experiment>/<timestamp> in outputs/<federation>/. Asked for if "
+        "left out.",
+        show_default=False,
     ),
 ]
 ExperimentArgument = t.Annotated[
@@ -122,6 +132,49 @@ def run(experiment: ExperimentArgument = None) -> None:
         )
         raise typer.Exit(code=1)
     run_experiment(experiment=chosen)
+
+
+@app.command(help="Predict every client scenario of a federation with a run's model.")
+def predict(federation: FederationArgument = None, run: RunArgument = None) -> None:
+    """Predict every client scenario of a federation with a run's model.
+
+    Writes one Parquet file per client to `predictions/<federation>/<run>/`, replacing
+    existing files.
+
+    Args:
+        federation:
+          Name of the federation, or `None` to ask the user.
+        run:
+          Name of the run as `<experiment>/<timestamp>`, or `None` to ask the user.
+
+    Raises:
+        typer.Exit:
+          With code 1 if the run lacks a file needed to rebuild its model, or if a
+          client's processed data cannot be written. The reason is logged.
+    """
+    chosen = choose_run(federation=choose_federation(federation=federation), run=run)
+    missing = missing_model_files(run=chosen)
+    if missing:
+        logger.error(
+            f"The run {chosen.name} has no {' or '.join(missing)}, so its model cannot "
+            "be rebuilt. Only experiments that save a model, such as fedavg, can be "
+            "predicted, and runs from before graphkit_config.json was saved must be "
+            "run again."
+        )
+        raise typer.Exit(code=1)
+    try:
+        paths = predict_run(run=chosen)
+    except PermissionError as err:
+        # Graphkit writes a client's `processed/` folder when it is missing or stale,
+        # and the ClientApp containers create that folder as root.
+        logger.error(
+            f"Cannot write {err.filename}. The ClientApp containers create the "
+            "processed/ folders as root. Change their owner to your user, or delete "
+            "them and run an experiment again."
+        )
+        raise typer.Exit(code=1) from err
+    for path in paths:
+        logger.info(f"Wrote {path}.")
 
 
 @app.command(help="Stop a federation and remove its containers.")
