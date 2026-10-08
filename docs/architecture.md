@@ -144,9 +144,11 @@ of a client must stay the same across runs.
 ### Outputs and Logging
 
 The server side of an experiment writes its results, such as its metrics, to the
-directory in `ServerPaths`, which is mounted from the host. Clients write training logs
-inside their own containers. The logs of the ServerApp and ClientApp containers show
-what happened in a run.
+directory in `ServerPaths`, which is mounted from the host. An experiment that trains
+one shared model also writes the model, `final_model.pt`, and the graphkit configuration
+it was built from, `graphkit_config.json`, so the run's folder alone is enough to
+rebuild the model. Clients write training logs inside their own containers. The logs of
+the ServerApp and ClientApp containers show what happened in a run.
 
 ### Testing
 
