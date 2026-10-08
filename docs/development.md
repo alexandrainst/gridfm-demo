@@ -78,7 +78,8 @@ experiment on any federation.
 - `gridfm_cli/` contains the `gridfm` command-line interface. It generates the data,
   runs `docker compose` with a federation's `compose.yml` and submits experiments with
   `flwr run`.
-- `docs/` contains background material and example configs.
+- `docs/` contains background material and example configs. `docs/adr/` contains the
+  architectural decision records.
 
 ## Adding an Experiment
 
