@@ -126,28 +126,7 @@ seed repeat. A new experiment should do the same to keep its runs repeatable.
 
 ## Adding a Federation
 
-A federation is a folder `federations/<name>/` with one datakit config per client and a
-Docker Compose file. `federations/case14_2clients/` is an example with two clients.
-
-- `datakit_config/client_<i>.yaml` is the
-  [gridfm-datakit](https://github.com/gridfm/gridfm-datakit) config of client `<i>`,
-  counting from 0. `network.name` selects the grid, and `settings.data_dir` must be
-  `federations/<name>/data/client_<i>`. `uv run gridfm data <name>` generates the data
-  of every client into `data/`, which `uv run gridfm up <name>` requires.
-- `compose.yml` starts one `superlink`, one `serverapp` built from `../../build/server`
-  with `../../outputs/<name>` mounted at `/outputs`, and two services per client:
-  - a SuperNode with its own ClientAppIO port and the node config
-    `client-id=<i> data-dir='/data/client_<i>' networks='<network.name>' scenarios='<count>'`.
-    Several networks and their scenario counts are comma-separated. The client ID must
-    stay the same across runs, since the clients seed from it.
-  - a ClientApp built from `../../build/client` that connects to that SuperNode and
-    mounts `./data/client_<i>` at `/data/client_<i>`.
-- `compose.yml` must not set a top-level `name:`. The Compose project is then named
-  after the folder, which keeps the containers of different federations apart and lets
-  `gridfm` tell whether a federation is up.
-
-Start the federation with `uv run gridfm up <name>`. FedAvg waits for at least two
-clients, so a federation with one client never starts a FedAvg run.
+[How to Add a Federation](how-to/add-federation.md) describes the steps.
 
 ## Tools
 
