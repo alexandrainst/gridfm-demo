@@ -47,7 +47,11 @@ apart.
 The folder `gridfm_cli/` holds the `gridfm` command-line interface, built with the
 Python library [Typer](https://typer.tiangolo.com/). It generates and deletes client
 data with gridfm-datakit, wraps `docker compose`, submits runs with `flwr run`, and
-finds and prompts for federations and experiments.
+finds and prompts for federations, experiments and runs. Its `predict` command rebuilds
+a finished run's model with gridfm-graphkit from the run's `graphkit_config.json` and
+`final_model.pt`, and predicts the scenarios of the federation's clients on the host. It
+writes the predictions to `predictions/`, never to `outputs/`, whose run folders belong
+to the containers' root user.
 
 Boundary: `gridfm_cli` runs on the host and is not part of the FAB. It controls the
 federation only by running the `docker compose` and `flwr` commands.

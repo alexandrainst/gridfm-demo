@@ -6,6 +6,7 @@ import click
 import typer
 
 from .paths import EXPERIMENTS_DIR, FEDERATIONS_DIR
+from .runs import Run, list_runs, missing_model_files
 
 
 def choose_federation(federation: str | None) -> str:
@@ -42,6 +43,34 @@ def choose_experiment(experiment: str | None) -> str:
     """
     options = sorted(path.parent.name for path in EXPERIMENTS_DIR.glob("*/__init__.py"))
     return _choose(kind="experiment", value=experiment, options=options)
+
+
+def choose_run(federation: str, run: str | None) -> Run:
+    """Return a run of a federation, asking the user to choose one if none is given.
+
+    A given name may be any run of the federation. The runs offered to the user are
+    only those whose model can be rebuilt. Fails with `typer.BadParameter` if the
+    name is unknown, if no name is given and stdin is not a terminal, or if no run
+    can be offered.
+
+    Args:
+        federation:
+          Name of the federation.
+        run:
+          Name of the run as `<experiment>/<timestamp>`, or `None` to ask the user.
+
+    Returns:
+        The chosen run.
+    """
+    runs = {candidate.name: candidate for candidate in list_runs(federation=federation)}
+    if run is None:
+        usable = [
+            name
+            for name, candidate in runs.items()
+            if not missing_model_files(run=candidate)
+        ]
+        return runs[_choose(kind="run with a model", value=None, options=usable)]
+    return runs[_choose(kind="run", value=run, options=list(runs))]
 
 
 def _choose(kind: str, value: str | None, options: list[str]) -> str:

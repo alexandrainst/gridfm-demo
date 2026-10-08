@@ -90,6 +90,15 @@ UTC start time of the run:
 uv run gridfm run <experiment>
 ```
 
+Predict every scenario of every client with the model of a finished run. The run is
+given as `<experiment>/<timestamp>`, and only experiments that save a model, such as
+`fedavg`, can be predicted. The predictions are written to
+`predictions/<federation>/<experiment>/<timestamp>/`, replacing earlier ones:
+
+```bash
+uv run gridfm predict <federation> <run>
+```
+
 Stop the federation and remove its containers. The generated data and the outputs are
 kept:
 
