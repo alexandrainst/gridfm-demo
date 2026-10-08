@@ -15,8 +15,8 @@ Demonstration of how federated learning can train a foundation model for the pow
 - The `gridfm` command-line interface is the `gridfm_cli` package. Federations are in
   `federations/<name>/`, Dockerfiles in `build/`, scripts in `scripts/`, tests in
   `tests/` and example configs in `docs/examples/`
-- Tests cannot import the experiments, since `torch_scatter` is only installed in the
-  Docker images
+- `torch-scatter`, which gridfm-graphkit imports, is built from source by `uv sync`,
+  which needs a C++ compiler
 
 ## Workflow
 

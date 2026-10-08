@@ -114,9 +114,9 @@ load profiles. Nothing in `flower_app` or `gridfm_cli` imports them.
 The folder `tests/` holds [pytest](https://docs.pytest.org/) tests of the code that runs
 without the Docker images.
 
-Invariant: tests never import the experiments, since the Python library
-[torch_scatter](https://github.com/rusty1s/pytorch_scatter) is installed only in the
-images.
+The Python library [torch_scatter](https://github.com/rusty1s/pytorch_scatter), which
+gridfm-graphkit imports, is installed on the host as well as in the images, so tests can
+import the experiments.
 
 ### `docs/`
 

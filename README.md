@@ -59,6 +59,7 @@ An experiment is a training procedure run on a federation. Each one is a package
 
 - [uv](https://docs.astral.sh/uv/getting-started/installation/)
 - [Docker](https://docs.docker.com/get-docker/) with Docker Compose
+- A C++ compiler, such as `g++`, for building `torch-scatter`
 
 ## Usage
 
