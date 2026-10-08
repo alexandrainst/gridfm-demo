@@ -1,0 +1,49 @@
+schema: spec-driven
+
+context: |
+  `docs/architecture.md` is the narrative overview of the project. Link to it rather
+  than repeat it.
+  Architectural decision records live in `docs/adr/` as `NNNN-title.md`, written from
+  `docs/adr/template.md`. Read the ones relevant to a change before writing any
+  artifact. They are binding: follow them unless the change explicitly supersedes one.
+  Use a Markdown table when content compares items along the same attributes, such as
+  config keys, commands or experiments. Use a Mermaid diagram (a ```mermaid code
+  block) when content describes a flow, a sequence of messages, states or how
+  components connect. Add a table or diagram only when it is clearer than prose, and
+  keep diagrams to about ten nodes. Prose must not depend on the diagram: state each
+  rule in text as well.
+
+rules:
+  proposal:
+    - List the architectural decision records the change relies on or affects
+  design:
+    - Cite the architectural decision records each decision follows
+    - If a decision contradicts a record, say so and give the reason. The change must
+      then supersede that record with a new one
+    - Mark each decision that will outlive the change as needing its own record
+  tasks:
+    - Add a task to write `docs/adr/NNNN-title.md` from `docs/adr/template.md` for each
+      decision the design marks as needing a record, and to set the status of each
+      record it replaces to `superseded by NNNN`
+  specs:
+    - Write the Purpose as three to five sentences that say what problem the capability
+      solves for the demo and what would go wrong without it. This overrides the
+      template's one or two sentences
+    - Open each requirement with one or two sentences that give the reason for it,
+      such as the risk it prevents or what depends on it. Then state the requirement
+      in one or two SHALL sentences
+    - Order requirements by importance. Put the requirements that define the
+      capability first and routine behavior, such as exit codes, last
+    - Leave out requirements that only describe the implementation, such as internal
+      paths, exact command lines or exception types, unless a user or another
+      capability relies on them
+    - Base scenarios on situations a developer meets, such as a plausible mistake, a
+      change they make or a question they ask. Use GIVEN for the setup and concrete
+      values from the project
+    - Every scenario must be observable from outside the system. Do not write a
+      scenario that can only pass by waiting forever or by inspecting internal state
+    - Put diagrams in the Purpose or in a requirement's text after its SHALL
+      sentences, never inside a scenario. A scenario may end with a table of example
+      inputs and outputs
+    - Keep each requirement short. One sentence of reason is enough; longer
+      explanations belong in `docs/architecture.md`
