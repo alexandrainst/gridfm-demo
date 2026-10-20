@@ -1,7 +1,8 @@
 # GridFM Demo
 
 Demonstration of how federated learning can train a foundation model for the power grid.
-`README.md` covers usage and `docs/development.md` how the project works.
+`README.md` covers usage, `docs/architecture/` how the project works and
+`docs/development.md` how to extend it.
 
 ## Project
 
