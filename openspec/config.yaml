@@ -1,11 +1,15 @@
 schema: spec-driven
 
 context: |
-  `docs/architecture.md` is the narrative overview of the project. Link to it rather
-  than repeat it.
-  Architectural decision records live in `docs/adr/` as `NNNN-title.md`, written from
-  `docs/adr/template.md`. Read the ones relevant to a change before writing any
-  artifact. They are binding: follow them unless the change explicitly supersedes one.
+  `docs/architecture/` is the arc42 architecture documentation of the project, one
+  file per section, indexed in `docs/architecture/README.md`. Link to it rather than
+  repeat it. Before writing any artifact, read the sections a change touches: 5 for
+  the building blocks and their interfaces, 6 for what happens during a run, 7 for
+  the containers, 8 for configuration, reproducibility, data locality and outputs,
+  and 12 for the project's terms, which every artifact uses as defined there.
+  Architectural decision records are the numbered `ADR n` subsections of
+  `docs/architecture/09-architecture-decisions.md`. Read the ones relevant to a
+  change. They are binding: follow them unless the change explicitly supersedes one.
   Use a Markdown table when content compares items along the same attributes, such as
   config keys, commands or experiments. Use a Mermaid diagram (a ```mermaid code
   block) when content describes a flow, a sequence of messages, states or how
@@ -22,9 +26,13 @@ rules:
       then supersede that record with a new one
     - Mark each decision that will outlive the change as needing its own record
   tasks:
-    - Add a task to write `docs/adr/NNNN-title.md` from `docs/adr/template.md` for each
-      decision the design marks as needing a record, and to set the status of each
-      record it replaces to `superseded by NNNN`
+    - Add a task to append an `ADR n` subsection to
+      `docs/architecture/09-architecture-decisions.md`, with the next free number, for
+      each decision the design marks as needing a record, and to set the status of
+      each record it replaces to `superseded by ADR n`
+    - Add a task to update each section of `docs/architecture/` that the change makes
+      wrong, such as 5 for a new or changed building block, 6 for a changed run, 7 for
+      a changed container or mount, 8 for a changed convention and 12 for a new term
   specs:
     - Write the Purpose as three to five sentences that say what problem the capability
       solves for the demo and what would go wrong without it. This overrides the
@@ -46,4 +54,4 @@ rules:
       sentences, never inside a scenario. A scenario may end with a table of example
       inputs and outputs
     - Keep each requirement short. One sentence of reason is enough; longer
-      explanations belong in `docs/architecture.md`
+      explanations belong in `docs/architecture/`
