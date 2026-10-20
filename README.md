@@ -68,6 +68,8 @@ Run the demo with the `gridfm` command. Each command takes a federation from
 for one if it is left out. [Background](#background) describes the available federations
 and experiments, and `uv run gridfm --help` lists all commands.
 
+### Generate Data
+
 Generate the synthetic data of each client in a federation. The data is written to
 `federations/<federation>/data/`, and clients that already have data are skipped:
 
@@ -75,12 +77,16 @@ Generate the synthetic data of each client in a federation. The data is written 
 uv run gridfm data <federation>
 ```
 
+### Start the Federation
+
 Start the federation in the background. This builds the Docker images, starts the
-SuperLink, one SuperNode and ClientApp per client, and the ServerApp.
+SuperLink, one SuperNode and ClientApp per client, and the ServerApp:
 
 ```bash
 uv run gridfm up <federation>
 ```
+
+### Run an Experiment
 
 Run an experiment on the running federation and stream its logs. The run writes its
 results to `outputs/<federation>/<experiment>/<timestamp>/`, where `<timestamp>` is the
@@ -89,6 +95,8 @@ UTC start time of the run:
 ```bash
 uv run gridfm run <experiment>
 ```
+
+### Predict Scenarios
 
 Predict every scenario of every client with the model of a finished run. The run is
 given as `<experiment>/<timestamp>`, and only experiments that save a model, such as
@@ -99,6 +107,8 @@ given as `<experiment>/<timestamp>`, and only experiments that save a model, suc
 uv run gridfm predict <federation> <run>
 ```
 
+### Plot Predictions
+
 Open the notebook that plots the predictions of a run on the network of one scenario. It
 reads `predictions/` and the client data, and writes nothing:
 
@@ -106,12 +116,16 @@ reads `predictions/` and the client data, and writes nothing:
 uv run marimo edit notebooks/scenarios.py
 ```
 
+### Stop the Federation
+
 Stop the federation and remove its containers. The generated data and the outputs are
 kept:
 
 ```bash
 uv run gridfm down <federation>
 ```
+
+### Delete Data
 
 Delete the generated data of the federation after asking for confirmation:
 
