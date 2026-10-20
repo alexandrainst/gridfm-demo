@@ -109,12 +109,14 @@ uv run gridfm predict <federation> <run>
 
 ### Plot Predictions
 
-Open the notebook that plots the predictions of a run on the network of one scenario. It
-reads `predictions/` and the client data, and writes nothing:
+Run the notebook that plots the predictions of a run on the network of one scenario as
+an app. It reads `predictions/` and the client data, and writes nothing:
 
 ```bash
-uv run marimo edit notebooks/scenarios.py
+uv run marimo run notebooks/scenarios.py
 ```
+
+Replace `run` with `edit` to open the notebook in the editor instead.
 
 ### Stop the Federation
 
