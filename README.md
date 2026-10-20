@@ -137,9 +137,9 @@ uv run gridfm clean <federation>
 
 ## Development
 
-See [`docs/development.md`](docs/development.md) for an introduction to Flower, the
-components of this project, how to add a federation or an experiment, and the
-development tools.
+See [`docs/architecture/`](docs/architecture/README.md) for how the project works and
+[`docs/development.md`](docs/development.md) for how to add an experiment or a
+federation and for the development tools.
 
 ## Maintainers
 
