@@ -24,3 +24,6 @@ data_out/
 
 # Session caches written by marimo
 __marimo__/
+
+# OpenSpec generates its agent skills with `openspec update`
+.claude/skills/openspec-*/
