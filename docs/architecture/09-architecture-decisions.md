@@ -5,8 +5,7 @@ gets a record when it is hard to reverse, affects several building blocks or has
 trade-off that a reader would otherwise question. A new record starts as proposed and
 becomes accepted once the maintainers agree. An accepted record is frozen. To change a
 decision, write a new record and set the status of the old one to superseded by the new
-one. OpenSpec reads these records before it writes a change, as configured in
-`openspec/config.yaml`.
+one.
 
 ## 9.1 ADR 1: Run Inference on the Host, with torch-scatter as a Project Dependency
 

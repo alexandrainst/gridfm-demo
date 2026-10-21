@@ -29,9 +29,9 @@ federation as Docker containers on one machine. The fundamental decisions are:
   federation in `federations/<name>/` holds the clients, their data and the Compose
   file. Because the two are independent, a run can train any experiment on any
   federation.
-- Organization: changes are specified before they are built, with OpenSpec proposals in
-  `openspec/` and architecture decision records, so that the reasons behind the code are
-  written down for a small, changing team.
+- Organization: changes are specified before they are built, with the specifications
+  in `docs/specs/` and architecture decision records, so that the reasons behind the
+  code are written down for a small, changing team.
 
 | Quality Goal                               | Solution Approach                                                                                                                               |
 | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
