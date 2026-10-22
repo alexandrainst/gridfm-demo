@@ -41,6 +41,11 @@ A federation is a set of clients and their synthetic data. Each one is a folder 
   topology variants with one random line or generator removed, and perturbs generator
   costs and line admittances. The clients share these settings and differ only in their
   random seed (1001 and 2001), so their data comes from the same distribution.
+- `case500_2clients`: two clients on different PGLib grids, client 0 on the 500-bus
+  `case500_goc` and client 1 on the 588-bus `case588_sdet`. Each client generates 500
+  load scenarios from an aggregated load profile, each in four topology variants with
+  one random line or generator removed, and perturbs generator costs and line
+  admittances. The clients differ in their grid and their random seed (1001 and 2001).
 
 ### Experiments
 
