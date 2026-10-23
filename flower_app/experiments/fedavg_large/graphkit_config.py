@@ -32,7 +32,7 @@ GRAPHKIT_CONFIG: dict[str, t.Any] = {
         "beta2": 0.999,
         "learning_rate": 0.0005,
         "lr_decay": 0.7,
-        "lr_patience": 5,
+        "lr_patience": 1,
     },
     "training": {
         "batch_size": 4,
