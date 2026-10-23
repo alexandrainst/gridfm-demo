@@ -25,14 +25,19 @@ from .task import build_task
 # FedAvg's default minimum, so that both experiments start with the same clients.
 MIN_CLIENTS = 2
 
+# Seconds a train message and its reply live on the SuperLink. One message covers a
+# client's whole training, which can outlast Flower's default of 12 hours.
+TRAIN_TTL = 7 * 24 * 60 * 60
+
 logger = logging.getLogger(__name__)
 
 
 def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
     """Train the initial model on each client's own data and save the averaged metrics.
 
-    Every connected client receives the same initial model once, trains it for
-    `local-epochs` epochs and evaluates it on its own validation data. The models are
+    Every connected client receives the same initial model once and trains it on its
+    own data until its validation loss has not improved for `patience` epochs, for at
+    most `max-epochs` epochs. It reports its lowest validation loss. The models are
     not aggregated. The clients' metrics are averaged as FedAvg averages them, weighted
     by `"num-examples"`.
 
@@ -41,7 +46,7 @@ def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
           Grid connecting the ServerApp to the SuperNodes.
         context:
           Context of the ServerApp. Its run config holds `"experiment"`, and
-          `"local-epochs"` and `"seed"` in the experiment's table.
+          `"max-epochs"`, `"patience"` and `"seed"` in the experiment's table.
         paths:
           Output directory of this run. Receives `metrics.json`, with the averaged
           metrics under `"evaluate_clientapp"` and round `"1"` as in FedAvg's
@@ -53,7 +58,8 @@ def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
           If a client replies with an error.
     """
     config = _experiment_config(run_config=context.run_config)
-    local_epochs = int(config["local-epochs"])
+    max_epochs = int(config["max-epochs"])
+    patience = int(config["patience"])
     seed = int(config["seed"])
 
     L.seed_everything(seed=seed, workers=True, verbose=False)
@@ -64,11 +70,18 @@ def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
     content = RecordDict(
         {
             "arrays": initial_arrays,
-            "config": ConfigRecord({"local-epochs": local_epochs, "seed": seed}),
+            "config": ConfigRecord(
+                {"max-epochs": max_epochs, "patience": patience, "seed": seed}
+            ),
         }
     )
     messages = [
-        Message(content=content, message_type=MessageType.TRAIN, dst_node_id=node_id)
+        Message(
+            content=content,
+            message_type=MessageType.TRAIN,
+            dst_node_id=node_id,
+            ttl=TRAIN_TTL,
+        )
         for node_id in _wait_for_clients(grid=grid, min_clients=MIN_CLIENTS)
     ]
 

@@ -6,7 +6,9 @@ import lightning as L
 from lightning.pytorch.loggers import CSVLogger
 
 
-def make_trainer(max_epochs: int, log_dir: Path) -> L.Trainer:
+def make_trainer(
+    max_epochs: int, log_dir: Path, callbacks: list[L.Callback]
+) -> L.Trainer:
     """Create a single-device trainer without checkpointing.
 
     The trainer uses a GPU if the process can see one, and the CPU otherwise.
@@ -16,6 +18,8 @@ def make_trainer(max_epochs: int, log_dir: Path) -> L.Trainer:
           Maximum number of training epochs.
         log_dir:
           Directory the CSV logger writes to.
+        callbacks:
+          Callbacks of the trainer.
 
     Returns:
         The configured trainer.
@@ -25,6 +29,7 @@ def make_trainer(max_epochs: int, log_dir: Path) -> L.Trainer:
         accelerator="auto",
         devices=1,
         logger=CSVLogger(save_dir=log_dir),
+        callbacks=callbacks,
         enable_checkpointing=False,
         enable_progress_bar=False,
         num_sanity_val_steps=0,
