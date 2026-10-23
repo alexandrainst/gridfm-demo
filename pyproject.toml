@@ -198,6 +198,17 @@ seed = 0
 local-epochs = 9
 seed = 0
 
+[tool.flwr.app.config.fedavg_large]
+num-server-rounds = 3
+local-epochs = 3
+seed = 0
+
+# Each client trains only on its own data, for as many epochs as a client trains in
+# FedAvg: `fedavg_large.num-server-rounds * fedavg_large.local-epochs`.
+[tool.flwr.app.config.isolated_large]
+local-epochs = 9
+seed = 0
+
 [tool.flwr.federations]
 default = "local-deployment"
 

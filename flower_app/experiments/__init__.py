@@ -2,9 +2,16 @@
 
 from ..interface import Experiment
 from .fedavg import EXPERIMENT as FEDAVG
+from .fedavg_large import EXPERIMENT as FEDAVG_LARGE
 from .isolated import EXPERIMENT as ISOLATED
+from .isolated_large import EXPERIMENT as ISOLATED_LARGE
 
-EXPERIMENTS: dict[str, Experiment] = {"fedavg": FEDAVG, "isolated": ISOLATED}
+EXPERIMENTS: dict[str, Experiment] = {
+    "fedavg": FEDAVG,
+    "fedavg_large": FEDAVG_LARGE,
+    "isolated": ISOLATED,
+    "isolated_large": ISOLATED_LARGE,
+}
 
 
 def get_experiment(name: str) -> Experiment:
