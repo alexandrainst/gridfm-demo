@@ -1,13 +1,12 @@
 """Federated rounds that stop when the global validation loss stops improving."""
 
-import logging
 import typing as t
+from logging import INFO
 
 from flwr.app import ArrayRecord, ConfigRecord, MetricRecord
+from flwr.common.logger import log
 from flwr.serverapp import Grid
 from flwr.serverapp.strategy import Result, Strategy
-
-logger = logging.getLogger(__name__)
 
 
 def run_with_early_stopping(
@@ -82,7 +81,7 @@ def run_with_early_stopping(
         )
         result.evaluate_metrics_clientapp[current_round] = evaluate_metrics
         loss = t.cast(float, evaluate_metrics["loss"])
-        logger.info(f"Round {current_round}: validation loss {loss:.6g}.")
+        log(INFO, f"Round {current_round}: validation loss {loss:.6g}.")
 
         if loss < best_loss:
             result.arrays, best_loss = arrays, loss
