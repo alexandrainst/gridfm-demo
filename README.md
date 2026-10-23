@@ -62,12 +62,16 @@ An experiment is a training procedure run on a federation. Each one is a package
   then reports its validation loss on the new global model. The defaults are
   `num-server-rounds = 3`, `local-epochs = 3` and `seed = 0`.
 - `fedavg_large`: `fedavg` with the model at gridfm-graphkit's default size, a hidden
-  size of 48, 12 layers and 8 attention heads, for grids of several hundred buses. Its
-  defaults are the same as those of `fedavg`.
+  size of 48, 12 layers and 8 attention heads, for grids of several hundred buses. It
+  trains until the clients' averaged validation loss has not improved for `patience`
+  rounds, for at most `max-server-rounds` rounds, and saves the global model of the
+  round with the lowest validation loss. The defaults are `max-server-rounds = 300`,
+  `patience = 3`, `local-epochs = 1` and `seed = 0`.
 - `isolated_large`: each client trains the model of `fedavg_large` on its own data only,
-  for `local-epochs` epochs with the `MaskedBusMSE` loss, and reports its validation
-  loss. The models are not aggregated. The defaults are `local-epochs = 9`, as many
-  epochs as a client trains in `fedavg_large`, and `seed = 0`.
+  with the `MaskedBusMSE` loss, until its validation loss has not improved for
+  `patience` epochs, for at most `max-epochs` epochs. It reports its lowest validation
+  loss. The models are not aggregated. The learning rate decays after 2 epochs without
+  improvement. The defaults are `max-epochs = 300`, `patience = 3` and `seed = 0`.
 
 ## Requirements
 
