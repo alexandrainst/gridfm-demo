@@ -70,8 +70,10 @@ An experiment is a training procedure run on a federation. Each one is a package
 - `isolated_large`: each client trains the model of `fedavg_large` on its own data only,
   with the `MaskedBusMSE` loss, until its validation loss has not improved for
   `patience` epochs, for at most `max-epochs` epochs. It reports its lowest validation
-  loss. The models are not aggregated. The learning rate decays after 2 epochs without
-  improvement. The defaults are `max-epochs = 300`, `patience = 3` and `seed = 0`.
+  loss. The models are not aggregated. The server saves each client's model of the epoch
+  with the lowest validation loss as `final_model_client_<id>.pt`. The learning rate
+  decays after 2 epochs without improvement. The defaults are `max-epochs = 300`,
+  `patience = 3` and `seed = 0`.
 
 ## Requirements
 

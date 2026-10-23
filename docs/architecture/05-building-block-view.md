@@ -73,13 +73,13 @@ The contained building blocks are:
 
 The interfaces between the blocks that matter for understanding the whole are:
 
-| Interface            | Between                                 | Form                                                                                                                                                                        |
-| -------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Experiment interface | Flower driver and Experiments           | `interface.py`: an `Experiment` of three entry points, `server_main`, `client_train` and `client_evaluate`, which receive `ServerPaths`, `ClientPaths` and `ClientDataset`. |
-| Run config           | gridfm CLI and Flower driver            | The `experiment` key and the experiment's own keys, declared with defaults in `pyproject.toml` and passed by `flwr run`.                                                    |
-| Node config          | Federations and Flower driver           | The `--node-config` of each SuperNode in `compose.yml`, which the driver turns into the client's `ClientDataset`.                                                           |
-| Run folder           | Experiments and gridfm CLI              | `outputs/<federation>/<experiment>/<timestamp>/` with `metrics.json`, and for experiments that save a model, `final_model.pt` and `graphkit_config.json`.                   |
-| Data folder          | gridfm CLI, Federations and Experiments | `federations/<name>/data/client_<i>/<network>/`, written by gridfm-datakit on the host and mounted into the client's container.                                             |
+| Interface            | Between                                 | Form                                                                                                                                                                                                     |
+| -------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Experiment interface | Flower driver and Experiments           | `interface.py`: an `Experiment` of three entry points, `server_main`, `client_train` and `client_evaluate`, which receive `ServerPaths`, `ClientPaths` and `ClientDataset`.                              |
+| Run config           | gridfm CLI and Flower driver            | The `experiment` key and the experiment's own keys, declared with defaults in `pyproject.toml` and passed by `flwr run`.                                                                                 |
+| Node config          | Federations and Flower driver           | The `--node-config` of each SuperNode in `compose.yml`, which the driver turns into the client's `ClientDataset`.                                                                                        |
+| Run folder           | Experiments and gridfm CLI              | `outputs/<federation>/<experiment>/<timestamp>/` with `metrics.json`, and for experiments that save models, `final_model.pt` or one `final_model_client_<id>.pt` per client, and `graphkit_config.json`. |
+| Data folder          | gridfm CLI, Federations and Experiments | `federations/<name>/data/client_<i>/<network>/`, written by gridfm-datakit on the host and mounted into the client's container.                                                                          |
 
 ### 5.1.1 gridfm CLI
 
