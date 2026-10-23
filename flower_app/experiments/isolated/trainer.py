@@ -7,7 +7,9 @@ from lightning.pytorch.loggers import CSVLogger
 
 
 def make_trainer(max_epochs: int, log_dir: Path) -> L.Trainer:
-    """Create a single-device CPU trainer without checkpointing.
+    """Create a single-device trainer without checkpointing.
+
+    The trainer uses a GPU if the process can see one, and the CPU otherwise.
 
     Args:
         max_epochs:
@@ -20,7 +22,7 @@ def make_trainer(max_epochs: int, log_dir: Path) -> L.Trainer:
     """
     return L.Trainer(
         max_epochs=max_epochs,
-        accelerator="cpu",
+        accelerator="auto",
         devices=1,
         logger=CSVLogger(save_dir=log_dir),
         enable_checkpointing=False,
