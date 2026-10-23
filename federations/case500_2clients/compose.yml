@@ -76,6 +76,15 @@ services:
     environment:
       OMP_NUM_THREADS: 1
       MKL_NUM_THREADS: 1
+    # Both ClientApps share the host's NVIDIA GPU, which needs the NVIDIA Container
+    # Toolkit on the host.
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     volumes:
       - ./data/client_0:/data/client_0
     networks:
@@ -95,6 +104,15 @@ services:
     environment:
       OMP_NUM_THREADS: 1
       MKL_NUM_THREADS: 1
+    # Both ClientApps share the host's NVIDIA GPU, which needs the NVIDIA Container
+    # Toolkit on the host.
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     volumes:
       - ./data/client_1:/data/client_1
     networks:

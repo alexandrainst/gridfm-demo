@@ -46,6 +46,7 @@ A federation is a set of clients and their synthetic data. Each one is a folder 
   load scenarios from an aggregated load profile, each in four topology variants with
   one random line or generator removed, and perturbs generator costs and line
   admittances. The clients differ in their grid and their random seed (1001 and 2001).
+  Both clients train on the host's NVIDIA GPU.
 
 ### Experiments
 
@@ -65,6 +66,9 @@ An experiment is a training procedure run on a federation. Each one is a package
 - [uv](https://docs.astral.sh/uv/getting-started/installation/)
 - [Docker](https://docs.docker.com/get-docker/) with Docker Compose
 - A C++ compiler, such as `g++`, for building `torch-scatter`
+- An NVIDIA GPU and the
+  [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+  for federations that train on the GPU, such as `case500_2clients`
 
 ## Usage
 
