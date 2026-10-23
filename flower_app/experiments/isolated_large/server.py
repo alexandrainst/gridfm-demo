@@ -6,6 +6,7 @@ import time
 from collections import OrderedDict
 
 import lightning as L
+import torch
 from flwr.app import (
     ArrayRecord,
     ConfigRecord,
@@ -33,13 +34,13 @@ logger = logging.getLogger(__name__)
 
 
 def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
-    """Train the initial model on each client's own data and save the averaged metrics.
+    """Train the initial model on each client's own data and save the models.
 
     Every connected client receives the same initial model once and trains it on its
     own data until its validation loss has not improved for `patience` epochs, for at
-    most `max-epochs` epochs. It reports its lowest validation loss. The models are
-    not aggregated. The clients' metrics are averaged as FedAvg averages them, weighted
-    by `"num-examples"`.
+    most `max-epochs` epochs. It returns the model of its epoch with the lowest
+    validation loss, and that loss. The models are not aggregated. The clients'
+    metrics are averaged as FedAvg averages them, weighted by `"num-examples"`.
 
     Args:
         grid:
@@ -48,8 +49,9 @@ def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
           Context of the ServerApp. Its run config holds `"experiment"`, and
           `"max-epochs"`, `"patience"` and `"seed"` in the experiment's table.
         paths:
-          Output directory of this run. Receives `metrics.json`, with the averaged
-          metrics under `"evaluate_clientapp"` and round `"1"` as in FedAvg's
+          Output directory of this run. Receives `final_model_client_<id>.pt` (state
+          dict) for each client, `graphkit_config.json`, `metrics.json`, with the
+          averaged metrics under `"evaluate_clientapp"` and round `"1"` as in FedAvg's
           `metrics.json`, and `run_config.json`, which also holds the Flower run ID
           under `"run-id"`.
 
@@ -95,6 +97,13 @@ def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
     )
 
     paths.output_dir.mkdir(parents=True, exist_ok=True)
+    for reply in replies:
+        client_id = reply.content.config_records["config"]["client-id"]
+        state_dict = reply.content.array_records["arrays"].to_torch_state_dict()
+        torch.save(state_dict, paths.output_dir / f"final_model_client_{client_id}.pt")
+    (paths.output_dir / "graphkit_config.json").write_text(
+        json.dumps(GRAPHKIT_CONFIG, indent=2)
+    )
     metrics = {"evaluate_clientapp": {"1": dict(averaged)}}
     (paths.output_dir / "metrics.json").write_text(json.dumps(metrics, indent=2))
     run_config = {"run-id": context.run_id, **config}

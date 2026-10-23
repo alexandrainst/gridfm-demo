@@ -1,10 +1,19 @@
 """Client side of the large isolated training experiment."""
 
+from collections import OrderedDict
 from logging import INFO
 
 import lightning as L
 import numpy as np
-from flwr.app import ConfigRecord, Context, Message, MetricRecord, RecordDict
+import torch
+from flwr.app import (
+    ArrayRecord,
+    ConfigRecord,
+    Context,
+    Message,
+    MetricRecord,
+    RecordDict,
+)
 from flwr.common.logger import log
 from lightning.pytorch.callbacks import EarlyStopping
 
@@ -34,8 +43,9 @@ def train(
           Log directory of this client.
 
     Returns:
-        Reply with the lowest validation `"loss"` of any epoch and `"num-examples"`
-        under `"metrics"`.
+        Reply with the model of the epoch with the lowest validation loss under
+        `"arrays"`, that loss as `"loss"` and `"num-examples"` under `"metrics"`, and
+        `"client-id"` under `"config"`.
     """
     config = msg.content.config_records["config"]
     max_epochs = _config_int(config=config, key="max-epochs")
@@ -53,17 +63,24 @@ def train(
     early_stopping = EarlyStopping(
         monitor="Validation loss", mode="min", patience=patience
     )
+    keep_best_model = KeepBestModel()
     trainer = make_trainer(
         max_epochs=max_epochs,
         log_dir=paths.log_dir,
-        callbacks=[early_stopping, LogValidationLoss()],
+        callbacks=[early_stopping, LogValidationLoss(), keep_best_model],
     )
     trainer.fit(model=task, datamodule=data_module)
     best_loss = float(early_stopping.best_score)
     num_examples = sum(len(d) for d in data_module.val_datasets)
 
     reply = RecordDict(
-        {"metrics": MetricRecord({"loss": best_loss, "num-examples": num_examples})}
+        {
+            "arrays": ArrayRecord.from_torch_state_dict(
+                keep_best_model.best_state_dict
+            ),
+            "metrics": MetricRecord({"loss": best_loss, "num-examples": num_examples}),
+            "config": ConfigRecord({"client-id": dataset.client_id}),
+        }
     )
     return Message(content=reply, reply_to=msg)
 
@@ -112,6 +129,42 @@ class LogValidationLoss(L.Callback):
         """
         loss = float(trainer.callback_metrics["Validation loss"])
         log(INFO, f"Epoch {trainer.current_epoch + 1}: validation loss {loss:.6g}.")
+
+
+class KeepBestModel(L.Callback):
+    """Callback that keeps a copy of the model with the lowest validation loss.
+
+    Attributes:
+        best_loss:
+          Lowest `"Validation loss"` seen so far, `inf` before the first validation.
+        best_state_dict:
+          State dict of the model at `best_loss`, on the CPU. Empty before the first
+          validation.
+    """
+
+    def __init__(self) -> None:
+        """Create the callback with no model kept."""
+        self.best_loss = float("inf")
+        self.best_state_dict: OrderedDict[str, torch.Tensor] = OrderedDict()
+
+    def on_validation_end(
+        self, trainer: L.Trainer, pl_module: L.LightningModule
+    ) -> None:
+        """Copy the model if its `"Validation loss"` is lower than `best_loss`.
+
+        Args:
+            trainer:
+              Trainer that ran the validation.
+            pl_module:
+              Module that was validated.
+        """
+        loss = float(trainer.callback_metrics["Validation loss"])
+        if loss < self.best_loss:
+            self.best_loss = loss
+            self.best_state_dict = OrderedDict(
+                (key, value.detach().cpu().clone())
+                for key, value in pl_module.state_dict().items()
+            )
 
 
 def _config_int(config: ConfigRecord, key: str) -> int:
