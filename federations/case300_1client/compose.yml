@@ -1,0 +1,81 @@
+services:
+  superlink:
+    image: flwr/superlink:1.23.0
+    command:
+      - --insecure
+      - --isolation
+      - process
+    ports:
+      - "127.0.0.1:9093:9093"
+    networks:
+      - flwr-network
+
+  supernode-1:
+    image: flwr/supernode:1.23.0
+    command:
+      - --insecure
+      - --superlink
+      - superlink:9092
+      - --clientappio-api-address
+      - 0.0.0.0:9094
+      - --isolation
+      - process
+      - --node-config
+      - "client-id=0 data-dir='/data/client_0' networks='case300_ieee' scenarios='2000'"
+    networks:
+      - flwr-network
+    depends_on:
+      - superlink
+
+  serverapp:
+    image: gridfm-flower-serverapp:1.23.0
+    build:
+      context: ../../build/server
+    command:
+      - --insecure
+      - --plugin-type
+      - serverapp
+      - --appio-api-address
+      - superlink:9091
+    volumes:
+      - ../../outputs/case300_1client:/outputs
+    networks:
+      - flwr-network
+    depends_on:
+      - superlink
+
+  clientapp-1:
+    image: gridfm-flower-clientapp:1.23.0
+    build:
+      context: ../../build/client
+    command:
+      - --insecure
+      - --plugin-type
+      - clientapp
+      - --appio-api-address
+      - supernode-1:9094
+    # PyTorch otherwise starts one OpenMP thread per host core in every ClientApp,
+    # and the ClientApps oversubscribe the CPU while training tiny graphs.
+    environment:
+      OMP_NUM_THREADS: 1
+      MKL_NUM_THREADS: 1
+    # The ClientApp uses the host's NVIDIA GPU, which needs the NVIDIA Container
+    # Toolkit on the host.
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    volumes:
+      - ./data/client_0:/data/client_0
+    networks:
+      - flwr-network
+    depends_on:
+      - serverapp
+      - supernode-1
+
+networks:
+  flwr-network:
+    driver: bridge
