@@ -49,8 +49,10 @@ directory in `ServerPaths`, which is mounted from the host as
 `outputs/<federation>/<experiment>/<timestamp>/`. An experiment that trains one shared
 model also writes the model, `final_model.pt`, and the gridfm-graphkit configuration it
 was built from, `graphkit_config.json`, so the run's folder alone is enough to rebuild
-the model. In `metrics.json`, the last round under `evaluate_clientapp` holds the
-validation loss of the final model on the clients' own data, averaged over clients.
+the model. In `metrics.json`, each round under `evaluate_clientapp` holds the validation
+loss of that round's model on the clients' own data, averaged over clients. An
+experiment that stops early saves the model of the round with the lowest validation
+loss.
 
 Only the federation writes to `outputs/`. Results the host computes from a run, such as
 predictions, go to their own top-level folder with the same
