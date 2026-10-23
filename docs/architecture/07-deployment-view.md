@@ -82,6 +82,9 @@ The infrastructure provides and limits these qualities:
 - Each ClientApp sets `OMP_NUM_THREADS` and `MKL_NUM_THREADS` to 1. PyTorch otherwise
   starts one thread per host core in every ClientApp, and the ClientApps oversubscribe
   the CPU while training tiny graphs.
+- A federation's Compose file can reserve the host's NVIDIA GPU for its ClientApps,
+  which then share it. The experiments train on a GPU when the ClientApp can see one,
+  and on the CPU otherwise.
 - The Flower federation `local-deployment` in `pyproject.toml` points the gridfm CLI at
   the SuperLink's published port.
 
