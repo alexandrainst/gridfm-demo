@@ -204,10 +204,12 @@ patience = 3
 local-epochs = 1
 seed = 0
 
-# Each client trains only on its own data, for as many epochs as a client trains in
-# FedAvg: `fedavg_large.num-server-rounds * fedavg_large.local-epochs`.
+# Each client trains only on its own data, until its validation loss stops improving.
+# `max-epochs` matches the most epochs a client trains in `fedavg_large`:
+# `fedavg_large.max-server-rounds * fedavg_large.local-epochs`.
 [tool.flwr.app.config.isolated_large]
-local-epochs = 9
+max-epochs = 300
+patience = 3
 seed = 0
 
 [tool.flwr.federations]
