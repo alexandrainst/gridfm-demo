@@ -48,6 +48,11 @@ A federation is a set of clients and their synthetic data. Each one is a folder 
   one random line or generator removed, and perturbs generator costs and line
   admittances. The clients differ in their grid and their random seed (1001 and 2001).
   Both clients train on the host's NVIDIA GPU.
+- `case300_1client`: one client on the 300-bus `case300_ieee` from PGLib, with the data
+  settings of `case500_2clients` and random seed 3001. It is unseen test data for the
+  models trained on `case500_2clients`, which `notebooks/case300_comparison.py` compares
+  on it. The experiments wait for two clients, so none of them trains on this
+  federation.
 
 ### Experiments
 
