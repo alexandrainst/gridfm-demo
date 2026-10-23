@@ -1,8 +1,11 @@
 """Client side of the large isolated training experiment."""
 
+from logging import INFO
+
 import lightning as L
 import numpy as np
 from flwr.app import ConfigRecord, Context, Message, MetricRecord, RecordDict
+from flwr.common.logger import log
 from lightning.pytorch.callbacks import EarlyStopping
 
 from ...interface import ClientDataset, ClientPaths
@@ -51,7 +54,9 @@ def train(
         monitor="Validation loss", mode="min", patience=patience
     )
     trainer = make_trainer(
-        max_epochs=max_epochs, log_dir=paths.log_dir, callbacks=[early_stopping]
+        max_epochs=max_epochs,
+        log_dir=paths.log_dir,
+        callbacks=[early_stopping, LogValidationLoss()],
     )
     trainer.fit(model=task, datamodule=data_module)
     best_loss = float(early_stopping.best_score)
@@ -89,6 +94,24 @@ def evaluate(
         "The isolated experiment evaluates on the clients during training and does not "
         "send evaluate messages."
     )
+
+
+class LogValidationLoss(L.Callback):
+    """Callback that logs the validation loss after every validation run."""
+
+    def on_validation_end(
+        self, trainer: L.Trainer, pl_module: L.LightningModule
+    ) -> None:
+        """Log the epoch and its `"Validation loss"` to Flower's logger.
+
+        Args:
+            trainer:
+              Trainer that ran the validation.
+            pl_module:
+              Module that was validated.
+        """
+        loss = float(trainer.callback_metrics["Validation loss"])
+        log(INFO, f"Epoch {trainer.current_epoch + 1}: validation loss {loss:.6g}.")
 
 
 def _config_int(config: ConfigRecord, key: str) -> int:
