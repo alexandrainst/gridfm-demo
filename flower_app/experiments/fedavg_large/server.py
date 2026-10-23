@@ -13,26 +13,31 @@ from flwr.serverapp import Grid
 from flwr.serverapp.strategy import FedAvg, Result
 
 from ...interface import ServerPaths
+from .early_stopping import run_with_early_stopping
 from .graphkit_config import GRAPHKIT_CONFIG
 from .task import build_task
 
 
 def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
-    """Run FedAvg for `num-server-rounds` rounds and save the outputs.
+    """Run FedAvg until the validation loss stops improving and save the outputs.
+
+    The run stops after `patience` consecutive rounds without a lower aggregated
+    client validation loss, or after `max-server-rounds` rounds.
 
     Args:
         grid:
           Grid connecting the ServerApp to the SuperNodes.
         context:
           Context of the ServerApp. Its run config holds `"experiment"`, and
-          `"num-server-rounds"`, `"local-epochs"` and `"seed"` in the experiment's
-          table.
+          `"max-server-rounds"`, `"patience"`, `"local-epochs"` and `"seed"` in the
+          experiment's table.
         paths:
           Output directory of this run. Its `run_config.json` also holds the Flower
           run ID under `"run-id"`.
     """
     config = _experiment_config(run_config=context.run_config)
-    num_rounds = int(config["num-server-rounds"])
+    max_rounds = int(config["max-server-rounds"])
+    patience = int(config["patience"])
     local_epochs = int(config["local-epochs"])
     seed = int(config["seed"])
 
@@ -43,11 +48,13 @@ def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
     initial_arrays = ArrayRecord.from_torch_state_dict(OrderedDict(task.state_dict()))
     train_config = ConfigRecord({"local-epochs": local_epochs, "seed": seed})
 
-    result = FedAvg().start(
+    result = run_with_early_stopping(
+        strategy=FedAvg(),
         grid=grid,
         initial_arrays=initial_arrays,
-        num_rounds=num_rounds,
         train_config=train_config,
+        max_rounds=max_rounds,
+        patience=patience,
     )
     save_outputs(
         result=result,
@@ -67,7 +74,7 @@ def save_outputs(
 
     Args:
         result:
-          Result returned by the strategy.
+          Result of the rounds, with the model to save under `arrays`.
         config:
           Run config of the experiment, written to `run_config.json`.
         graphkit_config:
