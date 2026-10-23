@@ -146,6 +146,16 @@ uv run marimo run notebooks/scenarios.py
 
 Replace `run` with `edit` to open the notebook in the editor instead.
 
+### Compare Models on an Unseen Grid
+
+Run the notebook that compares the `fedavg_large` model and the two `isolated_large`
+models of `case500_2clients` on the data of `case300_1client`. It predicts with the
+models itself and writes nothing:
+
+```bash
+uv run marimo run notebooks/case300_comparison.py
+```
+
 ### Stop the Federation
 
 Stop the federation and remove its containers. The generated data and the outputs are
