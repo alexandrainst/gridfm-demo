@@ -1,0 +1,32 @@
+/* Larger text than the theme's defaults of 24px body and 48px titles. */
+.modern-scope .alx-title h1 { font-size: 60px; }
+.modern-scope .alx-body { font-size: 34px; }
+.modern-scope h2 { font-size: 44px; }
+.modern-scope h3 { font-size: 36px; }
+.modern-scope pre,
+.modern-scope .shiki,
+.modern-scope .slidev-code { font-size: 26px !important; }
+
+/* No bold text anywhere in the deck. */
+.modern-scope strong,
+.modern-scope b,
+.modern-scope th { font-weight: 400; }
+
+/* A logo at the start of a bullet sits beside all lines of its text. */
+.modern-scope li:has(> img) { display: flow-root list-item; }
+.modern-scope li > img { float: left; margin: -0.3rem 1rem 0 0; }
+
+/* Table cells shaded by whether the model has seen the grid. */
+.modern-scope table.results td.seen,
+.modern-scope .chip.seen { background: #D4E5EB; }
+.modern-scope table.results td.unseen,
+.modern-scope .chip.unseen { background: #F5DCCD; }
+.modern-scope .chip {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin: 0 0.4em -0.1em 1.2em;
+  border-radius: 4px;
+  border: 1px solid #95989C;
+}
+.modern-scope .chip:first-child { margin-left: 0; }
