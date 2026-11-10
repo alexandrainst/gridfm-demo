@@ -1,5 +1,6 @@
 """Client side of the large FedAvg experiment."""
 
+import typing as t
 from collections import OrderedDict
 
 import lightning as L
@@ -27,7 +28,7 @@ def train(
     Args:
         msg:
           Message with the global model under `"arrays"`, and `"local-epochs"`,
-          `"seed"` and `"server-round"` under `"config"`.
+          `"seed"`, `"server-round"` and `"learning-rate"` under `"config"`.
         context:
           Context of the ClientApp.
         dataset:
@@ -41,6 +42,7 @@ def train(
     """
     config = msg.content.config_records["config"]
     local_epochs = _config_int(config=config, key="local-epochs")
+    learning_rate = _config_float(config=config, key="learning-rate")
     entropy = [
         _config_int(config=config, key="seed"),
         _config_int(config=config, key="server-round"),
@@ -50,8 +52,13 @@ def train(
     # seed, so each round and client shuffles differently while runs repeat.
     client_seed = int(np.random.SeedSequence(entropy=entropy).generate_state(1)[0])
     L.seed_everything(seed=client_seed, workers=True, verbose=False)
+    # A task built for every round starts a new scheduler, which cannot decay
+    # within one epoch, so the server decays the learning rate across rounds.
     task, data_module = build_task_and_datamodule(
-        graphkit_config=GRAPHKIT_CONFIG, dataset=dataset
+        graphkit_config=_with_learning_rate(
+            graphkit_config=GRAPHKIT_CONFIG, learning_rate=learning_rate
+        ),
+        dataset=dataset,
     )
     task.load_state_dict(msg.content.array_records["arrays"].to_torch_state_dict())
 
@@ -125,3 +132,43 @@ def _config_int(config: ConfigRecord, key: str) -> int:
     if not isinstance(value, int):
         raise TypeError(f"{key!r} must be an integer, got {value!r}.")
     return value
+
+
+def _config_float(config: ConfigRecord, key: str) -> float:
+    """Return a float value of a config record.
+
+    Args:
+        config:
+          Config record of a message.
+        key:
+          Key of the value.
+
+    Returns:
+        The value under `key`.
+
+    Raises:
+        TypeError:
+          If the value is not a float.
+    """
+    value = config[key]
+    if not isinstance(value, float):
+        raise TypeError(f"{key!r} must be a float, got {value!r}.")
+    return value
+
+
+def _with_learning_rate(
+    graphkit_config: dict[str, t.Any], learning_rate: float
+) -> dict[str, t.Any]:
+    """Return a copy of `graphkit_config` with the optimizer's learning rate set.
+
+    Args:
+        graphkit_config:
+          Graphkit configuration. Not modified.
+        learning_rate:
+          Value of `optimizer.learning_rate`.
+
+    Returns:
+        The configuration with `optimizer.learning_rate` set.
+    """
+    optimizer = {**graphkit_config["optimizer"], "learning_rate": learning_rate}
+    return {**graphkit_config, "optimizer": optimizer}

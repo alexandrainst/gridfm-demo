@@ -15,6 +15,7 @@ from flwr.serverapp.strategy import FedAvg, Result
 from ...interface import ServerPaths
 from .early_stopping import run_with_early_stopping
 from .graphkit_config import GRAPHKIT_CONFIG
+from .learning_rate import PlateauLearningRate
 from .task import build_task
 
 
@@ -22,7 +23,9 @@ def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
     """Run FedAvg until the validation loss stops improving and save the outputs.
 
     The run stops after `patience` consecutive rounds without a lower aggregated
-    client validation loss, or after `max-server-rounds` rounds.
+    client validation loss, or after `max-server-rounds` rounds. The learning
+    rate of the clients starts at the graphkit configuration's and decays as
+    graphkit's scheduler does, with one step per round.
 
     Args:
         grid:
@@ -47,12 +50,19 @@ def main(grid: Grid, context: Context, paths: ServerPaths) -> None:
     # `OrderedDict` it returns at runtime.
     initial_arrays = ArrayRecord.from_torch_state_dict(OrderedDict(task.state_dict()))
     train_config = ConfigRecord({"local-epochs": local_epochs, "seed": seed})
+    optimizer_config = GRAPHKIT_CONFIG["optimizer"]
+    learning_rate = PlateauLearningRate(
+        initial=float(optimizer_config["learning_rate"]),
+        decay=float(optimizer_config["lr_decay"]),
+        patience=int(optimizer_config["lr_patience"]),
+    )
 
     result = run_with_early_stopping(
         strategy=FedAvg(),
         grid=grid,
         initial_arrays=initial_arrays,
         train_config=train_config,
+        learning_rate=learning_rate,
         max_rounds=max_rounds,
         patience=patience,
     )

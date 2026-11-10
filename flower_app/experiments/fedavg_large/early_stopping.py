@@ -8,12 +8,15 @@ from flwr.common.logger import log
 from flwr.serverapp import Grid
 from flwr.serverapp.strategy import Result, Strategy
 
+from .learning_rate import PlateauLearningRate
+
 
 def run_with_early_stopping(
     strategy: Strategy,
     grid: Grid,
     initial_arrays: ArrayRecord,
     train_config: ConfigRecord,
+    learning_rate: PlateauLearningRate,
     max_rounds: int,
     patience: int,
 ) -> Result:
@@ -22,7 +25,8 @@ def run_with_early_stopping(
     Each round trains on the clients, aggregates their models, evaluates the
     aggregated model on the clients and aggregates their metrics. The run stops after
     `patience` consecutive rounds without a strictly lower aggregated `"loss"`, or
-    after `max_rounds` rounds.
+    after `max_rounds` rounds. The learning rate that the clients train with is
+    sent under `"learning-rate"` and decays when that loss plateaus.
 
     Args:
         strategy:
@@ -33,6 +37,9 @@ def run_with_early_stopping(
           Global model of the first round.
         train_config:
           Config sent to the clients in every training round.
+        learning_rate:
+          Learning rate of the clients. It is stepped with the aggregated
+          `"loss"` after every round.
         max_rounds:
           Maximum number of rounds.
         patience:
@@ -51,11 +58,14 @@ def run_with_early_stopping(
     # missing replies: the aggregates are `None` only if no client replied, and the
     # run then fails.
     for current_round in range(1, max_rounds + 1):
+        round_learning_rate = learning_rate.value
         train_replies = grid.send_and_receive(
             messages=strategy.configure_train(
                 server_round=current_round,
                 arrays=arrays,
-                config=train_config,
+                config=ConfigRecord(
+                    {**train_config, "learning-rate": round_learning_rate}
+                ),
                 grid=grid,
             )
         )
@@ -63,6 +73,7 @@ def run_with_early_stopping(
             tuple[ArrayRecord, MetricRecord],
             strategy.aggregate_train(server_round=current_round, replies=train_replies),
         )
+        train_metrics["learning-rate"] = round_learning_rate
         result.train_metrics_clientapp[current_round] = train_metrics
 
         evaluate_replies = grid.send_and_receive(
@@ -81,7 +92,12 @@ def run_with_early_stopping(
         )
         result.evaluate_metrics_clientapp[current_round] = evaluate_metrics
         loss = t.cast(float, evaluate_metrics["loss"])
-        log(INFO, f"Round {current_round}: validation loss {loss:.6g}.")
+        log(
+            INFO,
+            f"Round {current_round}: validation loss {loss:.6g}, "
+            f"learning rate {round_learning_rate:.3g}.",
+        )
+        learning_rate.step(loss=loss)
 
         if loss < best_loss:
             result.arrays, best_loss = arrays, loss
