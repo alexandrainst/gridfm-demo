@@ -27,7 +27,7 @@ with app.setup(hide_code=True):
     )
     UNITS: dict[str, str] = {"Vm": "p.u.", "Va": "deg", "Pg": "MW", "Qg": "MVAr"}
     # Where the notebook writes the errors that the slides read.
-    ERRORS_FILE = Path("docs/presentations/public/model_errors.csv")
+    ERRORS_FILE = Path("docs/presentations/2026-11-19/public/model_errors.csv")
 
 
 @app.cell(hide_code=True)
@@ -41,8 +41,8 @@ def _():
     | Model | Trained by |
     | --- | --- |
     | FedAvg | `fedavg_large`, on the data of both clients |
-    | Isolated client 0 | `isolated_large`, on the `case500_goc` data of client 0 only |
-    | Isolated client 1 | `isolated_large`, on the `case588_sdet` data of client 1 only |
+    | Isolated client 0 | `isolated_large`, on `case500_goc` data of client 0 only |
+    | Isolated client 1 | `isolated_large`, on `case588_sdet` data of client 1 only |
 
     | Test data | Source |
     | --- | --- |
@@ -155,10 +155,7 @@ def _(fedavg_picker, isolated_picker, training_clients, unseen_client):
 @app.cell(hide_code=True)
 def _(predictions):
     errors = mse_table(predictions=predictions)
-    mo.ui.table(
-        errors.round(6),
-        selection=None,
-    )
+    mo.ui.table(errors.round(6), selection=None)
     return (errors,)
 
 
