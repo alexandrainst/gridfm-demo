@@ -70,7 +70,10 @@ An experiment is a training procedure run on a federation. Each one is a package
   size of 48, 12 layers and 8 attention heads, for grids of several hundred buses. It
   trains until the clients' averaged validation loss has not improved for `patience`
   rounds, for at most `max-server-rounds` rounds, and saves the global model of the
-  round with the lowest validation loss. The defaults are `max-server-rounds = 300`,
+  round with the lowest validation loss. The server sends the learning rate to the
+  clients in every round. It starts at gridfm-graphkit's value and decays by the same
+  factor after 2 rounds without a lower validation loss, as the learning rate of
+  `isolated_large` decays across epochs. The defaults are `max-server-rounds = 300`,
   `patience = 3`, `local-epochs = 1` and `seed = 0`.
 - `isolated_large`: each client trains the model of `fedavg_large` on its own data only,
   with the `MaskedBusMSE` loss, until its validation loss has not improved for
