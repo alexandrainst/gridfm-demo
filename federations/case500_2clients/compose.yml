@@ -21,7 +21,7 @@ services:
       - --isolation
       - process
       - --node-config
-      - "client-id=0 data-dir='/data/client_0' networks='case500_goc' scenarios='2000'"
+      - "client-id=0 data-dir='/data/client_0' networks='case500_goc' scenarios='1000'"
     networks:
       - flwr-network
     depends_on:
@@ -38,7 +38,7 @@ services:
       - --isolation
       - process
       - --node-config
-      - "client-id=1 data-dir='/data/client_1' networks='case588_sdet' scenarios='2000'"
+      - "client-id=1 data-dir='/data/client_1' networks='case588_sdet' scenarios='1000'"
     networks:
       - flwr-network
     depends_on:

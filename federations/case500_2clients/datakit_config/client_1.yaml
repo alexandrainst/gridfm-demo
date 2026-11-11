@@ -6,7 +6,7 @@ network:
 load:
   generator: agg_load_profile
   agg_profile: default
-  scenarios: 500
+  scenarios: 250
   sigma: 0.2
   change_reactive_power: true
   global_range: 0.4
