@@ -16,18 +16,18 @@ with app.setup(hide_code=True):
     from plotly.subplots import make_subplots
 
     from gridfm_cli.clients import read_clients
+    from gridfm_cli.paths import OUTPUTS_DIR
     from gridfm_cli.predict import FEATURES, predict_client
     from gridfm_cli.runs import GRAPHKIT_CONFIG_FILE, MODEL_FILE, list_runs
 
-    TRAINING_FEDERATION = "case500_2clients"
     UNSEEN_FEDERATION = "case300_1client"
     CLIENT_MODEL_FILES: tuple[str, ...] = (
         "final_model_client_0.pt",
         "final_model_client_1.pt",
     )
     UNITS: dict[str, str] = {"Vm": "p.u.", "Va": "deg", "Pg": "MW", "Qg": "MVAr"}
-    # Where the notebook writes the errors that the slides read.
-    ERRORS_FILE = Path("docs/presentations/2026-11-19/public/model_errors.csv")
+    # Where the notebook writes the errors, in a file per training federation.
+    ERRORS_DIR = Path("docs/presentations/2026-11-19/public")
 
 
 @app.cell(hide_code=True)
@@ -35,8 +35,8 @@ def _():
     mo.md(r"""
     # Model Evaluation
 
-    This notebook scores three models trained on `case500_2clients` on the test data of
-    three grids:
+    This notebook scores three models trained on a federation of two clients on the
+    test data of three grids:
 
     | Model | Trained by |
     | --- | --- |
@@ -58,9 +58,10 @@ def _():
     1. `uv run gridfm data case500_2clients` and
        `uv run gridfm data case300_1client` generate the scenarios.
     2. `uv run gridfm run fedavg_large` and `uv run gridfm run isolated_large` on
-       `case500_2clients` train the models.
+       the federation train the models.
 
-    The run dropdowns list the runs that saved their models.
+    The federation dropdown lists the federations with runs, and the run dropdowns
+    list the runs that saved their models.
 
     ## What Is Shown
 
@@ -73,7 +74,24 @@ def _():
 
 @app.cell(hide_code=True)
 def _():
-    training_clients = read_clients(federation=TRAINING_FEDERATION)
+    _newest = {
+        path.name: max(run.timestamp for run in list_runs(federation=path.name))
+        for path in OUTPUTS_DIR.iterdir()
+        if path.is_dir() and list_runs(federation=path.name)
+    }
+    mo.stop(not _newest, mo.md("No federation has runs in `outputs/`."))
+    federation_picker = mo.ui.dropdown(
+        options=sorted(_newest),
+        value=max(_newest, key=_newest.__getitem__),
+        label="training federation",
+    )
+    federation_picker
+    return (federation_picker,)
+
+
+@app.cell(hide_code=True)
+def _(federation_picker):
+    training_clients = read_clients(federation=federation_picker.value)
     unseen_client = read_clients(federation=UNSEEN_FEDERATION)[0]
     _missing = [
         client.data_dir
@@ -93,8 +111,8 @@ def _():
 
 
 @app.cell(hide_code=True)
-def _():
-    _runs = list_runs(federation=TRAINING_FEDERATION)
+def _(federation_picker):
+    _runs = list_runs(federation=federation_picker.value)
     fedavg_runs = {
         run.timestamp: run.output_dir
         for run in _runs
@@ -110,7 +128,7 @@ def _():
         not fedavg_runs or not isolated_runs,
         mo.md(
             "A `fedavg_large` run and an `isolated_large` run on "
-            f"`{TRAINING_FEDERATION}` that saved their models are needed."
+            f"`{federation_picker.value}` that saved their models are needed."
         ),
     )
     fedavg_picker = mo.ui.dropdown(
@@ -167,10 +185,11 @@ def _(errors):
 
 
 @app.cell(hide_code=True)
-def _(errors):
-    ERRORS_FILE.parent.mkdir(parents=True, exist_ok=True)
-    errors.to_csv(ERRORS_FILE)
-    mo.md(f"The errors are saved to `{ERRORS_FILE}` for the slides.")
+def _(errors, federation_picker):
+    errors_file = ERRORS_DIR / f"model_errors_{federation_picker.value}.csv"
+    errors_file.parent.mkdir(parents=True, exist_ok=True)
+    errors.to_csv(errors_file)
+    mo.md(f"The errors are saved to `{errors_file}` for the slides.")
     return
 
 
