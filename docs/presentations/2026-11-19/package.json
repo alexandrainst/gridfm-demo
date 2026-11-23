@@ -8,7 +8,7 @@
     "export": "slidev export slides.md"
   },
   "dependencies": {
-    "@slidev/cli": "^0.49.3",
+    "@slidev/cli": "^53.1.0",
     "slidev-theme-alex": "github:alexandrainst/slidev-theme-alex"
   },
   "devDependencies": {
